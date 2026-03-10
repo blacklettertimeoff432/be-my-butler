@@ -43,7 +43,7 @@ Solo AI coding assistants are fast — but they hallucinate, skip edge cases, an
 
 ```bash
 # 1. Install BMB
-curl -fsSL https://raw.githubusercontent.com/be-my-butler/be-my-butler/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/project820/be-my-butler/main/install.sh | bash
 
 # 2. Verify installation
 bmb doctor
@@ -255,6 +255,6 @@ Contributions are welcome. Please read the [Contributing Guide](CONTRIBUTING.md)
 
 **Built with obstinate attention to correctness.**
 
-[Report Bug](https://github.com/be-my-butler/be-my-butler/issues) · [Request Feature](https://github.com/be-my-butler/be-my-butler/issues) · [Discussions](https://github.com/be-my-butler/be-my-butler/discussions)
+[Report Bug](https://github.com/project820/be-my-butler/issues) · [Request Feature](https://github.com/project820/be-my-butler/issues) · [Discussions](https://github.com/project820/be-my-butler/discussions)
 
 </div>

@@ -4,7 +4,7 @@
 set -e
 
 # ── Configuration ──────────────────────────────────────────────────────────────
-REPO="be-my-butler/be-my-butler"
+REPO="project820/be-my-butler"
 BRANCH="main"
 CLAUDE_DIR="$HOME/.claude"
 
@@ -37,7 +37,7 @@ Usage:
   install.sh --help       Show this help
 
 Environment:
-  BMB_REPO    Override default GitHub repo (default: be-my-butler/be-my-butler)
+  BMB_REPO    Override default GitHub repo (default: project820/be-my-butler)
   BMB_BRANCH  Override default branch (default: main)
 USAGE
     exit 0
