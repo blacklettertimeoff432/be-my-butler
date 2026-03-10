@@ -28,6 +28,13 @@ jobs:
         run: |
           brew install tmux sqlite3 python3
 
+      - name: Stub claude CLI for CI
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          printf '#!/bin/sh\necho "claude-code v0.0.0-ci-stub"\n' > "$HOME/.local/bin/claude"
+          chmod +x "$HOME/.local/bin/claude"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
       - name: Run install.sh
         run: |
           chmod +x install.sh
@@ -36,8 +43,6 @@ jobs:
       - name: Run doctor.sh
         run: |
           chmod +x doctor.sh
-          # claude CLI won't be available in CI — doctor.sh should
-          # still run and report it as missing without failing hard
           ./doctor.sh || true
 
       - name: Run uninstall.sh

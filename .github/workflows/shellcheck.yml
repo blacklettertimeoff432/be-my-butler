@@ -15,8 +15,5 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run ShellCheck
-        uses: koalaman/shellcheck-action@v1
-        with:
-          scandir: .
-        env:
-          SHELLCHECK_OPTS: "-e SC1091"
+        run: |
+          find . -name '*.sh' -print0 | xargs -0 shellcheck -e SC1091

@@ -116,6 +116,7 @@ Show saved config summary + gitignore changes. Tell user:
 - `.bmb/` is gitignored — safe for session logs and handoffs
 
 ## Config Schema
+
 ```json
 {
   "version": 1,
@@ -148,6 +149,7 @@ Show saved config summary + gitignore changes. Tell user:
 ```
 
 ## Security Notes
+
 - **Secrets belong in `~/.zshenv` only**: `BMB_TG_TOKEN`, `BMB_TG_CHAT`, API keys
 - **config.json stores flags, never values**: `telegram.enabled: true/false`, never the actual token
 - **`.bmb/` is always gitignored**: contains session logs, handoffs, conversation history
