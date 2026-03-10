@@ -48,4 +48,4 @@ jobs:
       - name: Run uninstall.sh
         run: |
           chmod +x uninstall.sh
-          ./uninstall.sh
+          ./uninstall.sh --yes

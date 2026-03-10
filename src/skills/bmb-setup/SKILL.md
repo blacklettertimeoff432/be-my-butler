@@ -71,6 +71,7 @@ mkdir -p .bmb/handoffs/.compressed .bmb/councils .bmb/sessions .bmb/worktrees
 Write config.json with collected values using the schema below.
 
 ### Step 4: Gitignore Protection
+
 **Auto-add sensitive patterns to project `.gitignore`.** This is NON-OPTIONAL — always runs.
 
 Check if `.gitignore` exists. If not, create it. Then ensure ALL of these patterns are present (append only missing ones):
@@ -101,6 +102,7 @@ Thumbs.db
 ```
 
 Implementation:
+
 ```bash
 # For each pattern, check if already in .gitignore before appending
 grep -qxF '.bmb/' .gitignore 2>/dev/null || echo '.bmb/' >> .gitignore
@@ -110,7 +112,9 @@ grep -qxF '.bmb/' .gitignore 2>/dev/null || echo '.bmb/' >> .gitignore
 Do NOT duplicate existing entries. Only append missing ones.
 
 ### Step 5: Confirm
+
 Show saved config summary + gitignore changes. Tell user:
+
 - Re-run `/BMB-setup` anytime to change settings
 - Telegram tokens go in `~/.zshenv`, NEVER in config files
 - `.bmb/` is gitignored — safe for session logs and handoffs
