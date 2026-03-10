@@ -19,6 +19,7 @@ npm-debug.log*
 
 # BMB runtime (never commit)
 .bmb/
+TODO.md
 
 # Environment
 .env
