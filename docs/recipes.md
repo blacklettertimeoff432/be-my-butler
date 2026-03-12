@@ -6,14 +6,14 @@ Recipes control which pipeline steps are executed. Choose based on the task's sc
 
 ## Recipe Summary
 
-| Recipe | Steps | Council | Test | Verify | Simplify | Frontend |
-|--------|-------|---------|------|--------|----------|----------|
-| `feature` | All 11 | Yes | Yes (cross) | Yes (cross) | Yes | If needed |
-| `bugfix` | 1-2-3-5-6-7-8-9-10-11 | No | Yes (cross) | Yes (cross) | No | No |
-| `refactor` | 1-2-3-4-5-6-7-8-9-10-11 | Yes | No | Yes (cross) | Yes | If needed |
-| `research` | 1-2-3 | No | No | No | No | No |
-| `review` | 1-2-3-7-8 | No | No | Yes (review mode) | No | No |
-| `infra` | 1-2-3-5-6-7-8-10-11 | No | Yes (cross) | Yes (cross) | No | No |
+| Recipe | Steps | Council | Test | Verify | Simplify | Analyst | Frontend |
+|--------|-------|---------|------|--------|----------|---------|----------|
+| `feature` | All 11.5 | Yes | Yes (cross) | Yes (cross) | Yes | Yes | If needed |
+| `bugfix` | 1-2-3-5-6-7-8-9-10-10.5-11 | No | Yes (cross) | Yes (cross) | No | Yes | No |
+| `refactor` | 1-2-3-4-5-6-7-8-9-10-10.5-11 | Yes | No | Yes (cross) | Yes | Yes | If needed |
+| `research` | 1-2-3 | No | No | No | No | No | No |
+| `review` | 1-2-3-7-8 | No | No | Yes (review mode) | No | No | No |
+| `infra` | 1-2-3-5-6-7-8-10-10.5-11 | No | Yes (cross) | Yes (cross) | No | Yes | No |
 
 ---
 
@@ -24,10 +24,10 @@ Recipes control which pipeline steps are executed. Choose based on the task's sc
 **Pipeline:**
 ```
 Setup → Brainstorm → Approval → Architecture (Council) → Execution (+Frontend)
-→ Cross-Model Test → Cross-Model Verify → Reconcile → Simplify → Docs → Cleanup
+→ Cross-Model Test → Cross-Model Verify → Reconcile → Simplify → Analyst → Docs → Cleanup
 ```
 
-**What makes it unique:** Full council debate before architecture. Both executor and frontend agents can run in parallel worktrees. Simplification pass removes any over-engineering introduced during execution.
+**What makes it unique:** Full council debate before architecture. Both executor and frontend agents can run in parallel worktrees. Simplification pass removes any over-engineering introduced during execution. The Analyst (Step 10.5) runs a retrospective analysis on `analytics.db` to classify events by Bird's Law severity and surface promotion candidates.
 
 **Estimated token cost:** 150k-400k tokens (depends on codebase size and council rounds)
 
@@ -47,10 +47,10 @@ Setup → Brainstorm → Approval → Architecture (Council) → Execution (+Fro
 **Pipeline:**
 ```
 Setup → Brainstorm → Approval → Execution → Cross-Model Test
-→ Cross-Model Verify → Reconcile → Docs → Cleanup
+→ Cross-Model Verify → Reconcile → Analyst → Docs → Cleanup
 ```
 
-**What makes it unique:** Skips council debate (the problem is known, not a design question). Skips frontend agent. Skips simplification (keep the fix minimal). Goes straight from brainstorm to execution.
+**What makes it unique:** Skips council debate (the problem is known, not a design question). Skips frontend agent. Skips simplification (keep the fix minimal). Goes straight from brainstorm to execution. The Analyst still runs to track fix patterns.
 
 **Estimated token cost:** 80k-200k tokens
 
@@ -70,10 +70,10 @@ GET /api/posts?offset=0&limit=10 으로 재현됩니다.
 **Pipeline:**
 ```
 Setup → Brainstorm → Approval → Architecture (Council) → Execution (+Frontend)
-→ Cross-Model Verify → Reconcile → Simplify → Docs → Cleanup
+→ Cross-Model Verify → Reconcile → Simplify → Analyst → Docs → Cleanup
 ```
 
-**What makes it unique:** Council debate is included (architectural decisions matter for refactoring). Testing step is skipped -- existing tests should pass, and the verifier checks this. Simplification is included to ensure the refactor actually reduced complexity.
+**What makes it unique:** Council debate is included (architectural decisions matter for refactoring). Testing step is skipped -- existing tests should pass, and the verifier checks this. Simplification is included to ensure the refactor actually reduced complexity. The Analyst identifies recurring refactoring patterns.
 
 **Estimated token cost:** 120k-350k tokens
 
@@ -137,10 +137,10 @@ src/auth/ 디렉토리의 인증 로직을 보안 관점에서 리뷰해주세�
 **Pipeline:**
 ```
 Setup → Brainstorm → Approval → Execution → Cross-Model Test
-→ Cross-Model Verify → Reconcile → Docs → Cleanup
+→ Cross-Model Verify → Reconcile → Analyst → Docs → Cleanup
 ```
 
-**What makes it unique:** Skips council debate (infra changes are typically well-defined). Skips frontend agent. Skips simplification. Includes testing and verification because infra bugs are high-impact.
+**What makes it unique:** Skips council debate (infra changes are typically well-defined). Skips frontend agent. Skips simplification. Includes testing and verification because infra bugs are high-impact. The Analyst tracks infra reliability patterns.
 
 **Estimated token cost:** 80k-200k tokens
 
@@ -175,4 +175,4 @@ flowchart TD
     Q4 -->|Restructuring| refactor
 ```
 
-If unsure, start with `feature` -- it includes everything. You can always cancel after the approval step if the scope was wrong.
+If unsure, start with `feature` -- it includes everything (all 11.5 steps). You can always cancel after the approval step if the scope was wrong.
