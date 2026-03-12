@@ -270,27 +270,9 @@ document.addEventListener('touchend', function(e) {
   }
 }, { passive: true });
 
-// ─── Mobile Auto Slide Mode ────────────────────
-function checkMobileSlideMode() {
-  var isMobile = window.innerWidth <= 768;
-  if (isMobile && !slideMode) {
-    toggleSlideMode();
-  } else if (!isMobile && slideMode) {
-    exitSlideMode();
-  }
-}
-
-// Run on load and resize
-window.addEventListener('DOMContentLoaded', function() {
-  // Small delay to let mermaid render first
-  setTimeout(checkMobileSlideMode, 200);
-});
-
-var resizeTimer;
-window.addEventListener('resize', function() {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(checkMobileSlideMode, 150);
-});
+// ─── Mobile: No auto slide mode ────────────────
+// Mobile uses vertical scroll (separate layout via CSS).
+// Slide mode is desktop-only (toggled manually).
 
 // ─── Hamburger Menu + Drawer ───────────────────
 (function() {
@@ -350,5 +332,45 @@ window.addEventListener('resize', function() {
 
   document.addEventListener('click', function() {
     langDropdown.classList.remove('open');
+  });
+})();
+
+// ─── Browser Language Detection Banner ─────────
+(function() {
+  var langMap = {
+    'ko': { file: 'index.ko.html', label: '한국어 버전이 있습니다', btn: '한국어로 보기' },
+    'ja': { file: 'index.ja.html', label: '日本語版があります', btn: '日本語で見る' },
+    'zh': { file: 'index.zh-TW.html', label: '繁體中文版本可用', btn: '切換繁體中文' }
+  };
+
+  // Only show on English page
+  var htmlLang = document.documentElement.lang;
+  if (htmlLang !== 'en') return;
+
+  // Check browser language
+  var browserLang = (navigator.language || '').toLowerCase();
+  var match = null;
+  if (browserLang.startsWith('ko')) match = langMap['ko'];
+  else if (browserLang.startsWith('ja')) match = langMap['ja'];
+  else if (browserLang.startsWith('zh')) match = langMap['zh'];
+
+  if (!match) return;
+
+  // Check if already on the right page or dismissed
+  var currentPage = location.pathname.split('/').pop() || 'index.html';
+  if (currentPage === match.file) return;
+  if (sessionStorage.getItem('bmb-lang-dismissed')) return;
+
+  // Create banner
+  var banner = document.createElement('div');
+  banner.className = 'lang-banner';
+  banner.innerHTML = '<span>' + match.label + '</span>' +
+    '<a href="' + match.file + '" class="lang-banner-btn">' + match.btn + '</a>' +
+    '<button class="lang-banner-close" aria-label="Close">&times;</button>';
+  document.body.appendChild(banner);
+
+  banner.querySelector('.lang-banner-close').addEventListener('click', function() {
+    banner.remove();
+    sessionStorage.setItem('bmb-lang-dismissed', '1');
   });
 })();

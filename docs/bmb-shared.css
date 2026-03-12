@@ -1009,60 +1009,148 @@ body.slide-mode .slide-hint { display: block; }
    RESPONSIVE
    ═══════════════════════════════════════════════ */
 
-/* ─── Tablet + Mobile (max-width: 768px) ────── */
+/* ═══════════════════════════════════════════════
+   MOBILE — Complete separate layout (≤768px)
+   Vertical scroll only. No slide mode.
+   ═══════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .card-grid, .recipe-grid { grid-template-columns: 1fr; }
-  .blind-wall { grid-template-columns: 1fr; }
-  .blind-separator { width: auto; height: 48px; writing-mode: horizontal-tb;
-    background: repeating-linear-gradient(90deg, var(--red) 0px, var(--red) 4px, transparent 4px, transparent 12px); }
-  .blind-separator span { writing-mode: horizontal-tb; }
-  .comparison { grid-template-columns: 1fr; }
-  .hero-stats { gap: 16px; }
-  .stat { padding: 12px 16px; }
-  .accordion-body { margin-left: 60px; }
-
-  /* Hide desktop nav, slide toggle, lang switcher */
+  /* ─── Hide desktop-only elements ──────── */
   .nav { display: none; }
   .slide-toggle { display: none; }
   .lang-switcher { display: none; }
   .slide-hint { display: none !important; }
+  .slide-indicator { display: none !important; }
+  .slide-dots { display: none !important; }
 
-  /* Show hamburger */
+  /* ─── Show mobile elements ────────────── */
   .hamburger { display: flex; }
-
-  /* Show pagination dots in slide mode */
-  body.slide-mode .slide-dots { display: flex; }
-  body.slide-mode .slide-indicator { bottom: 48px; font-size: 0.75rem; padding: 6px 14px; }
-
-  /* Mobile slide mode: sections fill viewport */
-  body.slide-mode .hero,
-  body.slide-mode section {
-    min-height: 100vh;
-    min-height: 100dvh;
-    padding: 24px 0;
-  }
-  body.slide-mode .hero { padding: 24px; }
-  body.slide-mode section.active-slide > .container {
-    max-height: calc(100vh - 100px);
-    max-height: calc(100dvh - 100px);
-    padding: 0 16px;
-  }
-
-  /* Mermaid scroll hint visible */
   .mermaid-hint { display: block; }
   .mermaid-wrap { position: relative; }
+
+  /* ─── Force scroll mode (override slide) ─ */
+  body.slide-mode { overflow: auto !important; }
+  body.slide-mode .hero,
+  body.slide-mode section {
+    display: block !important;
+    min-height: auto !important;
+    animation: none !important;
+  }
+  body.slide-mode section > .container {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  body.slide-mode footer { display: block !important; }
+
+  /* ─── Hero ────────────────────────────── */
+  .hero { padding: 72px 16px 48px; }
+  .hero h1 { font-size: clamp(1.8rem, 8vw, 2.8rem); }
+  .hero .subtitle { font-size: 0.95rem; margin-bottom: 28px; }
+  .hero-stats { gap: 8px; }
+  .stat { padding: 10px 14px; }
+  .stat-value { font-size: 1.4rem; }
+  .stat-label { font-size: 0.68rem; }
+  .hero-lang-bar a { font-size: 0.72rem !important; padding: 4px 10px !important; }
+
+  /* ─── Sections ────────────────────────── */
+  section { padding: 48px 0; }
+  .container { padding: 0 16px; }
+  .section-header { margin-bottom: 28px; }
+  .section-label { font-size: 0.68rem; }
+  h2 { font-size: 1.4rem; }
+  h3 { font-size: 1.1rem; margin: 28px 0 14px; }
+  .section-desc { font-size: 0.92rem; }
+
+  /* ─── Cards — single column, compact ──── */
+  .card-grid, .card-grid-3, .recipe-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .card { padding: 20px; }
+  .card:hover { transform: none; } /* No hover lift on mobile */
+  .card-header { gap: 10px; margin-bottom: 10px; }
+  .card-icon { width: 36px; height: 36px; font-size: 0.85rem; border-radius: 10px; }
+  .card-title { font-size: 0.95rem; }
+  .card-desc { font-size: 0.84rem; }
+  .card-tags { gap: 4px; margin-top: 10px; }
+  .tag { font-size: 0.62rem; padding: 2px 7px; }
+
+  /* ─── Tables — scrollable ─────────────── */
+  .table-wrap { margin: 16px 0; }
+  table { font-size: 0.78rem; }
+  th { padding: 10px 12px; font-size: 0.7rem; }
+  td { padding: 10px 12px; }
+
+  /* ─── Accordion — compact ─────────────── */
+  .accordion { margin: 20px 0; }
+  .accordion::before { left: 22px; }
+  .accordion-header { gap: 14px; padding: 12px 0; }
+  .step-num { width: 44px; height: 44px; font-size: 0.75rem; }
+  .accordion-summary { min-height: 44px; gap: 10px; }
+  .step-title { font-size: 0.95rem; }
+  .step-agents { gap: 3px; }
+  .agent-pill { font-size: 0.58rem; padding: 1px 6px; }
+  .accordion-body { margin-left: 58px; }
+  .accordion-item.open .accordion-body { max-height: 600px; }
+  .accordion-detail { font-size: 0.84rem; }
+
+  /* ─── Blind Wall — stacked ────────────── */
+  .blind-wall { grid-template-columns: 1fr; }
+  .blind-separator {
+    width: auto; height: 40px;
+    writing-mode: horizontal-tb;
+    background: repeating-linear-gradient(90deg, var(--red) 0px, var(--red) 4px, transparent 4px, transparent 12px);
+  }
+  .blind-separator span { writing-mode: horizontal-tb; font-size: 0.6rem; }
+  .blind-track { padding: 20px; }
+
+  /* ─── Comparison — stacked ────────────── */
+  .comparison { grid-template-columns: 1fr; gap: 10px; }
+
+  /* ─── Tier diagram ────────────────────── */
+  .tier { padding: 16px; gap: 14px; }
+  .tier:hover { transform: none; }
+  .tier-num { font-size: 1.2rem; }
+  .tier-title { font-size: 0.92rem; }
+  .tier-desc { font-size: 0.82rem; }
+
+  /* ─── Code blocks ─────────────────────── */
+  .code-block { padding: 14px 16px; font-size: 0.72rem; line-height: 1.7; }
+
+  /* ─── Directory tree ──────────────────── */
+  .dir-tree { padding: 16px; font-size: 0.7rem; line-height: 1.8; }
+  .dir-tree .desc { font-size: 0.66rem; }
+
+  /* ─── Recipe cards ────────────────────── */
+  .recipe-card { padding: 18px; }
+  .recipe-card:hover { transform: none; }
+  .recipe-icon { font-size: 1.2rem; margin-bottom: 8px; }
+  .recipe-name { font-size: 0.98rem; }
+  .recipe-chain { font-size: 0.68rem; }
+
+  /* ─── Mermaid — scroll container ──────── */
+  .mermaid-wrap { margin: 20px -16px; padding: 0 16px; }
+
+  /* ─── Footer ──────────────────────────── */
+  footer { padding: 40px 16px; }
+  footer .logo-text { font-size: 1.2rem; }
+
+  /* ─── Language banner — compact ───────── */
+  .lang-banner { font-size: 0.78rem; padding: 8px 12px; gap: 8px; flex-wrap: wrap; justify-content: center; }
 }
 
-/* ─── Small phone (max-width: 480px) ──────── */
+/* ─── Small phone (≤480px) — extra compact ── */
 @media (max-width: 480px) {
-  .hero { padding: 60px 16px 40px; }
-  .hero h1 { font-size: 2rem; }
-  .hero .subtitle { font-size: 1rem; }
-  .stat-value { font-size: 1.5rem; }
-  h2 { font-size: 1.5rem; }
-  .card { padding: 20px; }
-  .accordion-body { margin-left: 48px; }
-  .step-num { width: 44px; height: 44px; font-size: 0.75rem; }
+  .hero { padding: 64px 12px 36px; }
+  .hero h1 { font-size: 1.8rem; }
+  .hero .subtitle { font-size: 0.88rem; }
+  .stat-value { font-size: 1.2rem; }
+  .stat-label { font-size: 0.62rem; }
+  .container { padding: 0 12px; }
+  h2 { font-size: 1.25rem; }
+  .card { padding: 16px; }
+  .step-num { width: 38px; height: 38px; font-size: 0.7rem; }
+  .accordion-body { margin-left: 52px; }
+  .accordion::before { left: 19px; }
 }
 
 /* ─── Reduced motion ──────────────────────── */
@@ -1110,3 +1198,47 @@ body.slide-mode .slide-enter-right {
 body.slide-mode .slide-enter-left {
   animation: slideInLeft 0.3s ease forwards;
 }
+
+/* ─── Language Detection Banner ────────────── */
+.lang-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--accent);
+  font-size: 0.88rem;
+  color: var(--text);
+  animation: slideBannerIn 0.3s ease;
+}
+@keyframes slideBannerIn {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+.lang-banner-btn {
+  padding: 5px 16px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.lang-banner-btn:hover { background: var(--accent-light); }
+.lang-banner-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 4px;
+  margin-left: 8px;
+}
+.lang-banner-close:hover { color: var(--text); }
