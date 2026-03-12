@@ -4,50 +4,52 @@
    ═══════════════════════════════════════════════ */
 
 // ─── Mermaid Initialization ────────────────────
-mermaid.initialize({
-  theme: 'dark',
-  themeVariables: {
-    primaryColor: '#1a2234',
-    primaryBorderColor: '#3b82f6',
-    primaryTextColor: '#e8edf5',
-    lineColor: '#3b82f6',
-    secondaryColor: '#1a2234',
-    tertiaryColor: '#111827',
-    noteBkgColor: '#1a2234',
-    noteTextColor: '#e8edf5',
-    noteBorderColor: '#1e3a5f',
-    actorBkg: '#111827',
-    actorBorder: '#3b82f6',
-    actorTextColor: '#e8edf5',
-    signalColor: '#60a5fa',
-    signalTextColor: '#e8edf5',
-    labelBoxBkgColor: '#1a2234',
-    labelBoxBorderColor: '#1e3a5f',
-    labelTextColor: '#e8edf5',
-    loopTextColor: '#8494a7',
-    activationBorderColor: '#3b82f6',
-    activationBkgColor: '#243049',
-    sequenceNumberColor: '#e8edf5',
-    sectionBkgColor: '#111827',
-    sectionBkgColor2: '#1a2234',
-    altSectionBkgColor: '#111827',
-    gridColor: '#1e3a5f',
-    taskBkgColor: '#3b82f6',
-    taskBorderColor: '#1e3a5f',
-    taskTextColor: '#e8edf5',
-    taskTextLightColor: '#e8edf5',
-    activeTaskBkgColor: '#22c55e',
-    activeTaskBorderColor: '#16a34a',
-    doneTaskBkgColor: '#243049',
-    doneTaskBorderColor: '#1e3a5f',
-    critBkgColor: '#f59e0b',
-    critBorderColor: '#d97706',
-    todayLineColor: '#ef4444'
-  },
-  flowchart: { curve: 'basis', padding: 20 },
-  gantt: { fontSize: 11, barHeight: 20, topPadding: 30, sectionFontSize: 12 },
-  sequence: { actorMargin: 50, messageMargin: 40 }
-});
+if (typeof mermaid !== 'undefined') {
+  mermaid.initialize({
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#1a2234',
+      primaryBorderColor: '#3b82f6',
+      primaryTextColor: '#e8edf5',
+      lineColor: '#3b82f6',
+      secondaryColor: '#1a2234',
+      tertiaryColor: '#111827',
+      noteBkgColor: '#1a2234',
+      noteTextColor: '#e8edf5',
+      noteBorderColor: '#1e3a5f',
+      actorBkg: '#111827',
+      actorBorder: '#3b82f6',
+      actorTextColor: '#e8edf5',
+      signalColor: '#60a5fa',
+      signalTextColor: '#e8edf5',
+      labelBoxBkgColor: '#1a2234',
+      labelBoxBorderColor: '#1e3a5f',
+      labelTextColor: '#e8edf5',
+      loopTextColor: '#8494a7',
+      activationBorderColor: '#3b82f6',
+      activationBkgColor: '#243049',
+      sequenceNumberColor: '#e8edf5',
+      sectionBkgColor: '#111827',
+      sectionBkgColor2: '#1a2234',
+      altSectionBkgColor: '#111827',
+      gridColor: '#1e3a5f',
+      taskBkgColor: '#3b82f6',
+      taskBorderColor: '#1e3a5f',
+      taskTextColor: '#e8edf5',
+      taskTextLightColor: '#e8edf5',
+      activeTaskBkgColor: '#22c55e',
+      activeTaskBorderColor: '#16a34a',
+      doneTaskBkgColor: '#243049',
+      doneTaskBorderColor: '#1e3a5f',
+      critBkgColor: '#f59e0b',
+      critBorderColor: '#d97706',
+      todayLineColor: '#ef4444'
+    },
+    flowchart: { curve: 'basis', padding: 20 },
+    gantt: { fontSize: 11, barHeight: 20, topPadding: 30, sectionFontSize: 12 },
+    sequence: { actorMargin: 50, messageMargin: 40 }
+  });
+}
 
 // ─── Accordion toggle ──────────────────────────
 function toggleAccordion(header) {
@@ -75,19 +77,21 @@ if ('IntersectionObserver' in window) {
 // ─── Active nav link (scroll spy) ──────────────
 var sections = document.querySelectorAll('section[id]');
 var navLinks = document.querySelectorAll('.nav a');
-window.addEventListener('scroll', function() {
-  if (document.body.classList.contains('slide-mode')) return;
-  var current = '';
-  sections.forEach(function(section) {
-    if (window.scrollY >= section.offsetTop - 100) {
-      current = section.getAttribute('id');
-    }
+if (!document.body.classList.contains('mobile-landing')) {
+  window.addEventListener('scroll', function() {
+    if (document.body.classList.contains('slide-mode')) return;
+    var current = '';
+    sections.forEach(function(section) {
+      if (window.scrollY >= section.offsetTop - 100) {
+        current = section.getAttribute('id');
+      }
+    });
+    navLinks.forEach(function(link) {
+      link.style.color = link.getAttribute('href') === '#' + current ? 'var(--accent-light)' : '';
+      link.style.background = link.getAttribute('href') === '#' + current ? 'rgba(59,130,246,0.08)' : '';
+    });
   });
-  navLinks.forEach(function(link) {
-    link.style.color = link.getAttribute('href') === '#' + current ? 'var(--accent-light)' : '';
-    link.style.background = link.getAttribute('href') === '#' + current ? 'rgba(59,130,246,0.08)' : '';
-  });
-});
+}
 
 // ─── Slide Mode ────────────────────────────────
 var slideMode = false;
@@ -149,7 +153,7 @@ function goToSlide(index, direction) {
   var mermaidEls = next.querySelectorAll('.mermaid[data-processed]');
   if (mermaidEls.length === 0) {
     var unprocessed = next.querySelectorAll('.mermaid:not([data-processed])');
-    if (unprocessed.length > 0) {
+    if (unprocessed.length > 0 && typeof mermaid !== 'undefined') {
       mermaid.run({ nodes: Array.from(unprocessed) });
     }
   }

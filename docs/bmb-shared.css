@@ -1598,6 +1598,10 @@ body.slide-mode .slide-enter-left {
   white-space: nowrap;
 }
 
+.mobile-landing .ml-step-half {
+  font-size: 0.85em;
+}
+
 .mobile-landing .ml-flow-arrow {
   color: var(--text-dim);
   font-size: 14px;
