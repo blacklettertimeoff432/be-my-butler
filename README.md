@@ -6,11 +6,13 @@
 
 **Multi-agent orchestration for Claude Code with cross-model blind verification**
 
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
-[![Agents](https://img.shields.io/badge/agents-8-orange.svg)](#the-8-agents)
-[![Steps](https://img.shields.io/badge/pipeline_steps-11-teal.svg)](#the-11-step-pipeline)
+[![Agents](https://img.shields.io/badge/agents-9-orange.svg)](#the-9-agents)
+[![Steps](https://img.shields.io/badge/pipeline_steps-11.5-teal.svg)](#the-11-step-pipeline)
+[![What's New](https://img.shields.io/badge/what's_new-v0.2-green.svg)](WHATS-NEW-0.2.md)
 
 <!-- TODO: Replace with asciinema recording -->
 <!-- [![asciicast](assets/demo.svg)](https://asciinema.org/a/TODO) -->
@@ -74,7 +76,8 @@ flowchart TD
     G --> H["⑧ Test"]
     H --> I["⑨ Verify"]
     I --> J["⑩ Simplify"]
-    J --> K["⑪ Learn"]
+    J --> K["⑩.⑤ Analyst"]
+    K --> L["⑪ Learn"]
 
     style A fill:#1a1a2e,stroke:#e94560,color:#fff
     style B fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -86,7 +89,8 @@ flowchart TD
     style H fill:#0f3460,stroke:#53a8b6,color:#fff
     style I fill:#533483,stroke:#e94560,color:#fff
     style J fill:#533483,stroke:#e94560,color:#fff
-    style K fill:#533483,stroke:#e94560,color:#fff
+    style K fill:#1a3a2e,stroke:#22c55e,color:#fff
+    style L fill:#533483,stroke:#e94560,color:#fff
 ```
 
 | Step | Agent | What Happens |
@@ -101,6 +105,7 @@ flowchart TD
 | **8** | Tester | **Test** — writes and runs tests with coverage targets |
 | **9** | Verifier | **Verify** — cross-model blind review with divergent spec framing |
 | **10** | Simplifier | **Simplify** — removes dead code, flattens unnecessary abstractions |
+| **10.5** | Analyst | **Retrospective Analysis** — queries `analytics.db`, classifies events by Bird's Law severity, identifies promotion candidates from `pattern_counts` |
 | **11** | Lead | **Learn** — extracts lessons into the 3-tier auto-learning system |
 
 ---
@@ -150,6 +155,20 @@ Not every task needs 11 steps. Pick a **recipe** to skip what you don't need —
 
 </td>
 </tr>
+<tr>
+<td>
+
+### Analytics Layer + Bird's Law Severity
+Every pipeline run emits structured telemetry to `analytics.db`. The Analyst (Step 10.5) queries `pattern_counts` to find recurring failures and classifies events by **Bird's Law severity** (critical / warn / info). Promotion candidates surface automatically after 2+ occurrences.
+
+</td>
+<td>
+
+### Context7 for All Implementation Agents
+Architect, Executor, and Frontend agents query **live library documentation** via Context7 MCP before writing code. No stale API assumptions — agents always write against the current SDK.
+
+</td>
+</tr>
 </table>
 
 ---
@@ -178,18 +197,19 @@ Not every task needs 11 steps. Pick a **recipe** to skip what you don't need —
 
 ---
 
-## The 8 Agents
+## The 9 Agents
 
 | Agent | Role | Model |
 |---|---|---|
 | **Lead** | Orchestrator, decision-maker, session continuity | Claude |
-| **Consultant** | Brainstorm, devil's advocate, council debate | Claude (i18n: en/ko/ja/zh-TW) |
-| **Architect** | System design, file tree, contracts | Claude |
-| **Executor** | Implementation in isolated worktree | Claude |
-| **Frontend** | UI/UX implementation | Claude |
+| **Consultant** | Coordinator: user advisor + pipeline monitor. Dual-channel (feed + SendMessage). Post-briefing analysis after blind phase. | Claude (i18n: en/ko/ja/zh-TW) |
+| **Architect** | System design, file tree, contracts. Queries Context7 for live library docs. | Claude |
+| **Executor** | Implementation in isolated worktree. Queries Context7 before writing. | Claude |
+| **Frontend** | UI/UX implementation. Queries Context7 before writing. | Claude |
 | **Tester** | Test writing and execution | Claude |
 | **Verifier** | Cross-model blind review | Codex / Gemini / Claude |
 | **Simplifier** | Dead code removal, complexity reduction | Claude |
+| **Analyst** | Retrospective analytics: Bird's Law severity classification, `pattern_counts` promotion candidates | Claude (bypassPermissions, read-only) |
 
 > The **Writer** agent handles documentation generation as a sub-role of the pipeline.
 
@@ -224,11 +244,17 @@ Explore the full pipeline visually:
 ```
 ~/.claude/
 ├── skills/bmb/          # 4 slash command skills
-├── agents/bmb-*.md      # 8 agent definitions
+├── agents/bmb-*.md      # 9 agent definitions (incl. bmb-analyst.md)
 └── bmb-system/
     ├── config/          # Recipe configs, model assignments
-    ├── scripts/         # cross-model-run.sh, bmb-learn.sh
+    ├── scripts/         # cross-model-run.sh, bmb-learn.sh, bmb-analytics.sh
     └── templates/       # Session prep, handoff templates
+
+.bmb/                    # Per-project runtime directory
+├── analytics/
+│   └── analytics.db     # SQLite: sessions, events, pattern_counts
+└── handoffs/
+    └── analyst-report.md  # Step 10.5 output
 ```
 
 ---

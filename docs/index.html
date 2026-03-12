@@ -902,7 +902,7 @@
         <div class="stat-label">Pipeline Steps</div>
       </div>
       <div class="stat">
-        <div class="stat-value">8</div>
+        <div class="stat-value">9</div>
         <div class="stat-label">Agents</div>
       </div>
       <div class="stat">
@@ -1089,32 +1089,32 @@ graph TB
           <div class="card-icon sonnet">C</div>
           <div><div class="card-title">Consultant</div><div class="card-model">Claude Sonnet &bull; Step 2&ndash;11</div></div>
         </div>
-        <div class="card-desc">User advisor, pipeline monitor. Persistent pane with bidirectional SendMessage. Feeds business rules back to Lead.</div>
-        <div class="card-tags"><span class="tag green">bidirectional</span><span class="tag">persistent</span></div>
+        <div class="card-desc">Coordinator identity: full situational awareness, zero command authority. Dual-channel (feed file + SendMessage). Receives lifecycle events during blind phase; gets full post-briefing after reconciliation.</div>
+        <div class="card-tags"><span class="tag green">dual-channel</span><span class="tag">persistent</span><span class="tag cyan">post-briefing</span></div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="card-icon opus">A</div>
           <div><div class="card-title">Architect</div><div class="card-model">Claude Opus &bull; Step 4</div></div>
         </div>
-        <div class="card-desc">Design + cross-model council debate. 2&ndash;4 rounds of Claude vs Codex/Gemini. Writes plan-to-exec.md.</div>
-        <div class="card-tags"><span class="tag purple">council debate</span><span class="tag amber">cross-model</span></div>
+        <div class="card-desc">Design + cross-model council debate. 2&ndash;4 rounds of Claude vs Codex/Gemini. Writes plan-to-exec.md. Queries Context7 for live library docs before designing.</div>
+        <div class="card-tags"><span class="tag purple">council debate</span><span class="tag amber">cross-model</span><span class="tag cyan">Context7</span></div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="card-icon opus">E</div>
           <div><div class="card-title">Executor</div><div class="card-model">Claude Opus &bull; Step 5</div></div>
         </div>
-        <div class="card-desc">Backend implementation. Works in isolated git worktree. Commits only within worktree scope.</div>
-        <div class="card-tags"><span class="tag">worktree-isolated</span></div>
+        <div class="card-desc">Backend implementation. Works in isolated git worktree. Queries Context7 for current library docs before writing. Commits only within worktree scope.</div>
+        <div class="card-tags"><span class="tag">worktree-isolated</span><span class="tag cyan">Context7</span></div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="card-icon opus">F</div>
           <div><div class="card-title">Frontend</div><div class="card-model">Claude Opus &bull; Step 5</div></div>
         </div>
-        <div class="card-desc">React/Next.js + shadcn/Tailwind specialist. Separate worktree from Executor. Spawned only if frontend scope detected.</div>
-        <div class="card-tags"><span class="tag">worktree-isolated</span><span class="tag">conditional</span></div>
+        <div class="card-desc">React/Next.js + shadcn/Tailwind specialist. Separate worktree from Executor. Queries Context7 for current framework docs. Spawned only if frontend scope detected.</div>
+        <div class="card-tags"><span class="tag">worktree-isolated</span><span class="tag">conditional</span><span class="tag cyan">Context7</span></div>
       </div>
       <div class="card">
         <div class="card-header">
@@ -1141,13 +1141,21 @@ graph TB
         <div class="card-tags"><span class="tag green">re-verify</span></div>
       </div>
     </div>
-    <div style="margin-top:16px">
+    <div style="margin-top:16px;display:flex;gap:16px;flex-wrap:wrap">
       <div class="card" style="max-width:400px">
         <div class="card-header">
           <div class="card-icon sonnet">W</div>
           <div><div class="card-title">Writer</div><div class="card-model">Claude Sonnet &bull; Step 10</div></div>
         </div>
         <div class="card-desc">Documentation update + cross-validation. Sonnet is sufficient for docs.</div>
+      </div>
+      <div class="card" style="max-width:400px">
+        <div class="card-header">
+          <div class="card-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)">A</div>
+          <div><div class="card-title">Analyst</div><div class="card-model">Claude Sonnet &bull; Step 10.5</div></div>
+        </div>
+        <div class="card-desc">Retrospective analysis: queries <code>analytics.db</code>, classifies events by Bird&rsquo;s Law severity (critical/warn/info), surfaces <code>pattern_counts</code> promotion candidates.</div>
+        <div class="card-tags"><span class="tag green">bypassPermissions</span><span class="tag">read-only</span></div>
       </div>
     </div>
   </div>
@@ -1397,6 +1405,27 @@ graph TB
           </div>
         </div>
       </div>
+      <!-- Step 10.5 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <div class="step-num">10.5</div>
+          <div class="accordion-summary">
+            <div class="accordion-title-wrap">
+              <div class="step-title">Retrospective Analysis</div>
+              <div class="step-agents">
+                <span class="agent-pill" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff">Analyst</span>
+              </div>
+            </div>
+            <div class="accordion-chevron">&#9662;</div>
+          </div>
+        </div>
+        <div class="accordion-body">
+          <div class="accordion-detail">
+            Analyst queries <code>analytics.db</code> for the current session. Classifies events by <strong>Bird&rsquo;s Law severity</strong> (critical / warn / info). Cross-references <code>pattern_counts</code> to find recurring failures (&ge;2 occurrences) eligible for CLAUDE.md promotion. Writes <code>analyst-report.md</code> (3&ndash;5 min timeout; pipeline continues on timeout).
+            <div class="step-badges"><span class="tag green">Bird&rsquo;s Law</span><span class="tag cyan">pattern_counts</span><span class="tag">read-only agent</span></div>
+          </div>
+        </div>
+      </div>
       <!-- Step 11 -->
       <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion(this)">
@@ -1436,6 +1465,7 @@ flowchart TD
   S8{"8. Reconciliation"}
   S9["9. Simplify + Re-verify"]
   S10["10. Docs Update"]
+  S105["10.5 Retrospective Analysis<br/><i>Bird's Law severity</i>"]
   S11["11. Cleanup + Session Prep"]
 
   S1 --> S2
@@ -1463,17 +1493,20 @@ flowchart TD
   S8 -->|"ENV fail"| S1
   S8 -->|"TEST fail"| S6
   S9 --> S10
-  S10 --> S11
+  S10 --> S105
+  S105 --> S11
 
   classDef decision fill:#1a1500,stroke:#d97706,color:#f59e0b
   classDef cancel fill:#2a0a0a,stroke:#ef4444,color:#ef4444
   classDef step fill:#111827,stroke:#1e3a5f,color:#e8edf5
   classDef parallel fill:#0a1628,stroke:#3b82f6,color:#60a5fa
+  classDef analyst fill:#0a2010,stroke:#22c55e,color:#4ade80
 
   class S3,S8 decision
   class CANCEL cancel
   class S1,S2,S4,S5,S55,S6,S7,S9,S10,S11 step
   class EX,FE parallel
+  class S105 analyst
       </pre>
     </div>
   </div>

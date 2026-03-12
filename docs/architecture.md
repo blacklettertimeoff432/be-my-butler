@@ -2,7 +2,7 @@
 
 ## System Overview
 
-BMB (Be My Butler) is an 11-step multi-agent orchestration pipeline for Claude Code. A single **Lead** agent spawns and coordinates 8 specialized agents through tmux panes, communicating exclusively via files in the `.bmb/` directory.
+BMB (Be My Butler) is an 11-step multi-agent orchestration pipeline for Claude Code. A single **Lead** agent spawns and coordinates 9 specialized agents through tmux panes, communicating exclusively via files in the `.bmb/` directory.
 
 ```mermaid
 graph TB
@@ -19,6 +19,7 @@ graph TB
         Verifier
         Simplifier
         Writer
+        Analyst
     end
 
     subgraph ".bmb/ (handoff directory)"
@@ -28,9 +29,11 @@ graph TB
         testResult["test-result-*.md"]
         verifyResult["verify-result-*.md"]
         simplifyResult["simplify-result.md"]
+        analystReport["analyst-report.md"]
         docsUpdate["docs-update.md"]
         config["config.json"]
         sessionLog["session-log.md"]
+        analyticsDB[("analytics/analytics.db")]
     end
 
     Lead -->|writes| briefing
@@ -50,6 +53,9 @@ graph TB
     Simplifier -->|writes| simplifyResult
     Writer -->|reads| .bmb/
     Writer -->|writes| docsUpdate
+    Analyst -->|reads| analyticsDB
+    Analyst -->|writes| analystReport
+    Lead -->|emits events| analyticsDB
 ```
 
 ### Design Principles
@@ -58,6 +64,8 @@ graph TB
 - **All communication is file-based.** Agents never communicate directly -- every handoff goes through `.bmb/handoffs/`.
 - **Agents are ephemeral.** Only Lead and Consultant persist. All other agents are spawned via `tmux split-pane`, polled for a result file, and killed when done.
 - **Context protection.** Lead reads compressed summaries (max 300 tokens) rather than full handoff files to preserve its context window.
+- **Unified permissions.** All spawned agents use `--permission-mode bypassPermissions`. The Lead constrains scope via prompt, not permission flags.
+- **Structured telemetry.** Lead emits lifecycle events to `analytics.db` throughout the pipeline. The Analyst (Step 10.5) reads this DB and classifies events by Bird's Law severity.
 
 ---
 
@@ -67,8 +75,10 @@ graph TB
 .bmb/
 ├── config.json                    # Pipeline configuration
 ├── session-log.md                 # All agents append here
-├── consultant-feed.md             # Lead → Consultant updates
+├── consultant-feed.md             # Lead → Consultant updates (dual-channel)
 ├── consultant-pane-id             # Consultant tmux pane ID
+├── analytics/
+│   └── analytics.db               # SQLite: sessions, events, pattern_counts
 ├── handoffs/
 │   ├── briefing.md                # Step 2 output → Architect, Cross-model
 │   ├── plan-to-exec.md            # Step 4 output → Executor, Claude Tester/Verifier
@@ -80,6 +90,8 @@ graph TB
 │   ├── verify-result-cross.md     # Step 7 Track A
 │   ├── verify-result.md           # Step 8 reconciled output
 │   ├── simplify-result.md         # Step 9 output
+│   ├── analyst-report.md          # Step 10.5 output
+│   ├── analyst-report.summary.md  # Step 10.5 compressed summary
 │   ├── docs-update.md             # Step 10 output
 │   └── .compressed/               # L1 compressed summaries
 ├── worktrees/                     # Git worktrees per agent
@@ -112,6 +124,7 @@ flowchart TD
     S8["8. Reconciliation<br/>Merge reports, classify failures"]
     S9["9. Simplification + Re-verify<br/>Remove dead code, re-run tests"]
     S10["10. Docs Update<br/>Writer updates documentation"]
+    S105["10.5 Retrospective Analysis<br/>Analyst: Bird's Law severity, pattern_counts"]
     S11["11. Cleanup + Session Prep<br/>Commit, push, index, prepare next session"]
 
     S1 --> S2 --> S3
@@ -119,13 +132,120 @@ flowchart TD
     S3 -->|NO| END["Pipeline cancelled"]
     S3 -->|MODIFY| S2
     S4 --> S5 --> S55 --> S6 --> S7 --> S8
-    S8 -->|PASS| S9 --> S10 --> S11
+    S8 -->|PASS| S9 --> S10 --> S105 --> S11
     S8 -->|FAIL:IMPL| S5
     S8 -->|FAIL:ARCH| S4
     S8 -->|FAIL:REQ| S2
 ```
 
 Steps are **recipe-dependent** -- lighter recipes skip steps. See [recipes.md](recipes.md).
+
+---
+
+## Analytics Subsystem
+
+The Lead agent is the **sole writer** to `analytics.db`. All other agents are read-only.
+
+### Schema
+
+```sql
+-- One row per pipeline run
+CREATE TABLE sessions (
+  session_id TEXT PRIMARY KEY,
+  project TEXT,
+  recipe TEXT,
+  started_at TEXT,
+  ended_at TEXT,
+  duration_sec INTEGER
+);
+
+-- One row per lifecycle event
+CREATE TABLE events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT,
+  step TEXT,
+  step_seq INTEGER,          -- increments on repeated steps (fix loops)
+  agent TEXT,
+  event_type TEXT,           -- agent_spawn, agent_complete, agent_timeout, merge_conflict, ...
+  severity TEXT,             -- info | warn | error | critical
+  event_key TEXT,            -- step:agent:event_type (stable identifier)
+  detail TEXT,
+  duration_sec INTEGER,
+  created_at TEXT
+);
+
+-- Aggregate counts per event_key across all sessions
+CREATE TABLE pattern_counts (
+  event_key TEXT PRIMARY KEY,
+  count INTEGER DEFAULT 1,
+  category TEXT,
+  description TEXT,
+  severity_max TEXT,
+  first_seen TEXT,
+  last_seen TEXT
+);
+```
+
+### Bird's Law Severity Model
+
+Events are classified into four severity levels:
+
+| Severity | Description | Examples |
+|----------|-------------|---------|
+| `critical` | Pipeline-blocking failure | merge_conflict requiring user intervention |
+| `error` | Agent failure with fallback | agent_timeout, test suite crash |
+| `warn` | Degraded execution | cross-model unavailable, timeout near limit |
+| `info` | Normal lifecycle | agent_spawn, agent_complete, step transitions |
+
+The Analyst (Step 10.5) filters `events` by severity and cross-references `pattern_counts` to identify recurring patterns eligible for promotion to `CLAUDE.md`.
+
+### 3-Tier Reporting
+
+At session end, the Lead reads the Analyst report and presents a tiered summary:
+
+| Tier | Audience | Content |
+|------|----------|---------|
+| **Tier 1** | Lead (internal) | Full event log + pattern_counts |
+| **Tier 2** | Consultant | Post-briefing summary (after blind phase only) |
+| **Tier 3** | User | High-severity incidents + promotion candidates |
+
+---
+
+## Consultant — Coordinator Identity
+
+The Consultant operates in two distinct modes:
+
+| Mode | When | Receives |
+|------|------|----------|
+| **Active** | Steps 2–3 (brainstorm/council) | Full context, can send feedback |
+| **Blind** | Steps 6–7 (testing/verification) | Lifecycle events only (no test payloads) |
+| **Post-briefing** | After Step 8 reconciliation | Analyst report + full results |
+
+**Dual-channel communication:**
+1. **Feed file** (`consultant-feed.md`) — Lead writes context updates; Consultant reads on request
+2. **SendMessage** — Lead pushes JSON lifecycle events directly to the Consultant pane
+
+Fixed JSON templates for lifecycle events:
+```json
+{"event":"agent_spawn","step":"5","agent":"executor","timeout_sec":600,"ts":"14:03"}
+{"event":"agent_complete","step":"5","agent":"executor","result":".bmb/handoffs/exec-result.md","ts":"14:09"}
+{"event":"agent_timeout","step":"6","agent":"tester-cross","elapsed_sec":900,"ts":"14:15"}
+{"event":"merge_conflict","step":"5.5","files":"executor","ts":"14:06","severity":"error","tier":"1"}
+```
+
+---
+
+## Context7 Protocol
+
+Architect, Executor, and Frontend agents must query live library documentation before writing any implementation code that uses third-party libraries.
+
+```
+1. mcp__context7__resolve-library-id  →  get canonical library ID
+2. mcp__context7__query-docs          →  get current API docs
+3. Write code against the actual current API
+```
+
+This prevents stale-SDK hallucination — a common failure mode when agents write against memorized (potentially outdated) API signatures.
 
 ---
 
@@ -246,6 +366,8 @@ BMB never blocks on optional dependencies. If a capability is unavailable, the p
 | Frontend agent not needed | Skip frontend worktree/merge | None |
 | `knowledge.db` corrupted | Delete and re-index | Loses past session search |
 | `session-prep.md` missing | Fresh start (no continuity) | Loses prior session context |
+| `analytics.db` missing | Analyst skips; logs warning to `session-log.md` | Loses pattern analysis for this session |
+| Context7 unavailable | Agents fall back to memorized API knowledge | Risk of stale-SDK errors |
 | Telegram not configured | Skip notifications | No user alerts |
 
 All degradation events are logged to `session-log.md` with timestamp.
