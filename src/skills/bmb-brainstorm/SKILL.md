@@ -56,7 +56,7 @@ EOF
 Spawn Consultant pane:
 ```bash
 CONSULTANT=$(tmux split-pane -v -p 30 -d -P -F '#{pane_id}' \
-  "CLAUDECODE= claude --agent bmb-consultant --permission-mode dontAsk \
+  "CLAUDECODE= claude --agent bmb-consultant --permission-mode bypassPermissions \
   'Read .bmb/consultant-feed.md first, then announce the brainstorming session start to the user in their configured language.'")
 echo "$CONSULTANT" > .bmb/consultant-pane-id
 ```

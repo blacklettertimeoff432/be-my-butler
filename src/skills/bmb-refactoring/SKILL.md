@@ -38,7 +38,7 @@ ALL cross-model invocations MUST use:
 4. **Track A — Claude analysis** (in-process): Lead reads the codebase scope from user's description, spawns bmb-architect to analyze:
    ```bash
    CLAUDE_PLAN=$(tmux split-pane -h -d -P -F '#{pane_id}' \
-     "CLAUDECODE= claude --agent bmb-architect --permission-mode dontAsk \
+     "CLAUDECODE= claude --agent bmb-architect --permission-mode bypassPermissions \
      'Analyze the codebase for refactoring opportunities. Focus on: {user scope}. \
       Write refactoring PLAN (markdown only, no code) to .bmb/handoffs/refactor-plan-claude.md'")
    ```
@@ -74,7 +74,7 @@ Poll with cross_model timeout.
 Spawn bmb-verifier (Claude) to review the diff:
 ```bash
 REVIEW_PANE=$(tmux split-pane -h -d -P -F '#{pane_id}' \
-  "CLAUDECODE= claude --agent bmb-verifier --permission-mode dontAsk \
+  "CLAUDECODE= claude --agent bmb-verifier --permission-mode bypassPermissions \
   'Review the refactoring diff in .bmb/worktrees/refactor-exec/. \
    Check architecture, security, intent fidelity. \
    Write review to .bmb/handoffs/refactor-review.md'")

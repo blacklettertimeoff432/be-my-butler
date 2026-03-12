@@ -2,7 +2,7 @@
 
 ## System Overview
 
-BMB (Be My Butler) is an 11-step multi-agent orchestration pipeline for Claude Code. A single **Lead** agent spawns and coordinates 9 specialized agents through tmux panes, communicating exclusively via files in the `.bmb/` directory.
+BMB (Be My Butler) is an 11.5-step multi-agent orchestration pipeline for Claude Code. A single **Lead** agent spawns and coordinates 9 specialized agents through tmux panes, communicating exclusively via files in the `.bmb/` directory.
 
 ```mermaid
 graph TB
@@ -109,7 +109,7 @@ graph TB
 
 ---
 
-## 11-Step Pipeline Flow
+## 11.5-Step Pipeline Flow
 
 ```mermaid
 flowchart TD
