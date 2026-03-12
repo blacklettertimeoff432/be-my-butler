@@ -11,7 +11,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents](https://img.shields.io/badge/agents-9-orange.svg)](#the-9-agents)
-[![Steps](https://img.shields.io/badge/pipeline_steps-11.5-teal.svg)](#the-11-step-pipeline)
+[![Steps](https://img.shields.io/badge/pipeline_steps-11.5-teal.svg)](#the-115-step-pipeline)
 [![What's New](https://img.shields.io/badge/what's_new-v0.2-green.svg)](WHATS-NEW-0.2.md)
 
 <!-- TODO: Replace with asciinema recording -->
@@ -35,7 +35,7 @@ Solo AI coding assistants are fast — but they hallucinate, skip edge cases, an
 | **"Works for me" testing** | Divergent framing — verifier receives a deliberately reworded spec to catch assumption leaks |
 | **Lost knowledge** | FTS5 knowledge base + auto-learning promotes recurring lessons automatically |
 
-> BMB doesn't replace your judgment — it gives you **8 opinionated experts** who argue before you decide.
+> BMB doesn't replace your judgment — it gives you **9 opinionated experts** who argue before you decide.
 
 ---
 
@@ -55,13 +55,13 @@ bmb doctor
 /BMB
 ```
 
-That's it. BMB registers its agents, skills, and scripts into your Claude Code environment. Type `/BMB` in any project to start the full 11-step pipeline.
+That's it. BMB registers its agents, skills, and scripts into your Claude Code environment. Type `/BMB` in any project to start the full 11.5-step pipeline.
 
 > **Optional for cross-model verification:** Install [Codex CLI](https://github.com/openai/codex) and/or [Gemini CLI](https://github.com/google-gemini/gemini-cli) to unlock blind verification with a second model.
 
 ---
 
-## The 11-Step Pipeline
+## The 11.5-Step Pipeline
 
 Every `/BMB` run walks through these stages. Steps adapt based on the selected **recipe** — some steps are skipped or shortened for lighter workflows.
 
@@ -151,7 +151,7 @@ Long pipelines bleed context. BMB compresses at three layers: **intra-step** (wi
 <td>
 
 ### Configurable Recipes
-Not every task needs 11 steps. Pick a **recipe** to skip what you don't need — a bugfix skips brainstorm and council; a research task skips execution entirely.
+Not every task needs 11.5 steps. Pick a **recipe** to skip what you don't need — a bugfix skips brainstorm and council; a research task skips execution entirely.
 
 </td>
 </tr>
@@ -190,7 +190,7 @@ Architect, Executor, and Frontend agents query **live library documentation** vi
 
 | Command | Description |
 |---|---|
-| `/BMB` | Full 11-step pipeline — select a recipe interactively |
+| `/BMB` | Full 11.5-step pipeline — select a recipe interactively |
 | `/BMB-brainstorm` | Brainstorm + Council only — explore ideas without executing |
 | `/BMB-refactoring` | Refactor recipe shortcut — skip brainstorm, go straight to architecture |
 | `/BMB-setup` | First-time project setup — generates `session-prep.md` and config |
