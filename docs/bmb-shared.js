@@ -337,10 +337,26 @@ document.addEventListener('touchend', function(e) {
 
 // ─── Browser Language Detection Banner ─────────
 (function() {
+  // Determine page family: 'index' or 'mobile'
+  var pageFamily = document.body.getAttribute('data-page-family') || 'index';
+  var prefix = pageFamily === 'mobile' ? 'm' : 'index';
+
   var langMap = {
-    'ko': { file: 'index.ko.html', label: '한국어 버전이 있습니다', btn: '한국어로 보기' },
-    'ja': { file: 'index.ja.html', label: '日本語版があります', btn: '日本語で見る' },
-    'zh': { file: 'index.zh-TW.html', label: '繁體中文版本可用', btn: '切換繁體中文' }
+    'ko': {
+      file: prefix + '.ko.html',
+      label: '한국어 버전이 있습니다',
+      btn: '한국어로 보기'
+    },
+    'ja': {
+      file: prefix + '.ja.html',
+      label: '日本語版があります',
+      btn: '日本語で見る'
+    },
+    'zh': {
+      file: prefix + '.zh-TW.html',
+      label: '繁體中文版本可用',
+      btn: '切換繁體中文'
+    }
   };
 
   // Only show on English page
@@ -372,5 +388,41 @@ document.addEventListener('touchend', function(e) {
   banner.querySelector('.lang-banner-close').addEventListener('click', function() {
     banner.remove();
     sessionStorage.setItem('bmb-lang-dismissed', '1');
+  });
+})();
+
+// ─── Mobile Landing: Card IntersectionObserver ──
+(function() {
+  if (!document.body.classList.contains('mobile-landing')) return;
+  if (!('IntersectionObserver' in window)) {
+    // Fallback: show all cards immediately
+    document.querySelectorAll('.ml-card').forEach(function(c) {
+      c.classList.add('ml-visible');
+    });
+    return;
+  }
+
+  var counterEl = document.querySelector('.ml-counter-current');
+  var cards = document.querySelectorAll('.ml-card');
+
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('ml-visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  var counterObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && counterEl) {
+        counterEl.textContent = entry.target.getAttribute('data-card') || '1';
+      }
+    });
+  }, { threshold: 0.5 });
+
+  cards.forEach(function(card) {
+    revealObserver.observe(card);
+    counterObserver.observe(card);
   });
 })();
