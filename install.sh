@@ -157,7 +157,9 @@ for f in \
     agents/bmb-tester.md \
     agents/bmb-verifier.md \
     agents/bmb-writer.md \
+    agents/bmb-analyst.md \
     scripts/cross-model-run.sh \
+    scripts/bmb-analytics.sh \
     scripts/bmb-learn.sh \
     scripts/knowledge-index.sh \
     scripts/knowledge-search.sh \
@@ -242,7 +244,7 @@ done
 BMB_SYS="$CLAUDE_DIR/bmb-system"
 mkdir -p "$BMB_SYS/scripts" "$BMB_SYS/config" "$BMB_SYS/templates"
 
-for script in cross-model-run.sh bmb-learn.sh knowledge-index.sh knowledge-search.sh conversation-logger.py; do
+for script in cross-model-run.sh bmb-learn.sh bmb-analytics.sh knowledge-index.sh knowledge-search.sh conversation-logger.py; do
     cp "$SRC_DIR/scripts/$script" "$BMB_SYS/scripts/"
 done
 ok "Installed scripts"
