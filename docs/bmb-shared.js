@@ -77,6 +77,15 @@ if ('IntersectionObserver' in window) {
 // ─── Active nav link (scroll spy) ──────────────
 var sections = document.querySelectorAll('section[id]');
 var navLinks = document.querySelectorAll('.nav a');
+
+function setActiveNav(activeId) {
+  navLinks.forEach(function(link) {
+    var isActive = link.getAttribute('href') === '#' + activeId;
+    link.style.color = isActive ? 'var(--accent-light)' : '';
+    link.style.background = isActive ? 'rgba(59,130,246,0.08)' : '';
+  });
+}
+
 if (!document.body.classList.contains('mobile-landing')) {
   window.addEventListener('scroll', function() {
     if (document.body.classList.contains('slide-mode')) return;
@@ -86,10 +95,7 @@ if (!document.body.classList.contains('mobile-landing')) {
         current = section.getAttribute('id');
       }
     });
-    navLinks.forEach(function(link) {
-      link.style.color = link.getAttribute('href') === '#' + current ? 'var(--accent-light)' : '';
-      link.style.background = link.getAttribute('href') === '#' + current ? 'rgba(59,130,246,0.08)' : '';
-    });
+    setActiveNav(current);
   });
 }
 
@@ -118,17 +124,10 @@ function updateDots() {
 
 function updateNavHighlight() {
   var activeId = slides[currentSlide] && slides[currentSlide].getAttribute('id');
-  navLinks.forEach(function(link) {
-    var href = link.getAttribute('href');
-    var isActive = href === '#' + activeId;
-    link.style.color = isActive ? 'var(--accent-light)' : '';
-    link.style.background = isActive ? 'rgba(59,130,246,0.08)' : '';
-  });
+  setActiveNav(activeId);
   // Also update drawer nav links
   document.querySelectorAll('.drawer-nav a').forEach(function(link) {
-    var href = link.getAttribute('href');
-    var isActive = href === '#' + activeId;
-    link.classList.toggle('active', isActive);
+    link.classList.toggle('active', link.getAttribute('href') === '#' + activeId);
   });
 }
 
@@ -229,16 +228,20 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+function findSlideIndex(targetId) {
+  var idx = -1;
+  slides.forEach(function(s, i) {
+    if (s.getAttribute && s.getAttribute('id') === targetId) idx = i;
+  });
+  return idx;
+}
+
 // Nav click jumps to slide in slide mode
 navLinks.forEach(function(link) {
   link.addEventListener('click', function(e) {
     if (!slideMode) return;
     e.preventDefault();
-    var targetId = link.getAttribute('href').slice(1);
-    var idx = -1;
-    slides.forEach(function(s, i) {
-      if (s.getAttribute && s.getAttribute('id') === targetId) idx = i;
-    });
+    var idx = findSlideIndex(link.getAttribute('href').slice(1));
     if (idx >= 0) goToSlide(idx);
   });
 });
@@ -311,11 +314,7 @@ document.addEventListener('touchend', function(e) {
     link.addEventListener('click', function(e) {
       if (slideMode) {
         e.preventDefault();
-        var targetId = link.getAttribute('href').slice(1);
-        var idx = -1;
-        slides.forEach(function(s, i) {
-          if (s.getAttribute && s.getAttribute('id') === targetId) idx = i;
-        });
+        var idx = findSlideIndex(link.getAttribute('href').slice(1));
         if (idx >= 0) goToSlide(idx);
       }
       closeDrawer();

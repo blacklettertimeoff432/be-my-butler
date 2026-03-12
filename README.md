@@ -237,6 +237,15 @@ Explore the full pipeline visually:
 
 **[View Interactive Docs →](https://be-my-butler.github.io/be-my-butler/)**
 
+Mobile-optimized summary pages (7-card vertical scroll, 4 locales):
+
+| Language | URL |
+|---|---|
+| English | [m.html](https://project820.github.io/be-my-butler/m.html) |
+| 한국어 | [m.ko.html](https://project820.github.io/be-my-butler/m.ko.html) |
+| 日本語 | [m.ja.html](https://project820.github.io/be-my-butler/m.ja.html) |
+| 繁體中文 | [m.zh-TW.html](https://project820.github.io/be-my-butler/m.zh-TW.html) |
+
 ---
 
 ## Project Structure

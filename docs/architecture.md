@@ -374,6 +374,39 @@ All degradation events are logged to `session-log.md` with timestamp.
 
 ---
 
+## Mobile Landing Pages
+
+Four locale-specific mobile landing pages live in `docs/` alongside the desktop index files:
+
+| File | Locale | Canonical URL |
+|------|--------|--------------|
+| `docs/m.html` | EN | `.../m.html` |
+| `docs/m.ko.html` | KO | `.../m.ko.html` |
+| `docs/m.ja.html` | JA | `.../m.ja.html` |
+| `docs/m.zh-TW.html` | ZH-TW | `.../m.zh-TW.html` |
+
+### Structure
+
+Each page contains **7 vertical-scroll cards** with `scroll-snap-type: y proximity`:
+
+| # | Card | Content |
+|---|------|---------|
+| 1 | Cover | BMB logo, tagline, 9 Agents / 11.5 Steps / Cross-Model tags |
+| 2 | Problem | 2×2 grid: Self-verification bias, Context explosion, Edge cases, Design tunnel vision |
+| 3 | Pipeline | 4-phase flow (PLAN/BUILD/VERIFY/REFINE) with `/BMB` command prompt |
+| 4 | Architecture | Simplified SVG: handoff flow, blind wall, worktree isolation |
+| 5 | Killer Feature | Cross-model blind wall, Divergent Framing, Assumption Leak Detection |
+| 6 | For Everyone | Expert panel (cyan) + Beginner panel (pink) |
+| 7 | CTA | Stats, GitHub button, MIT license |
+
+### Shared Assets
+
+- **CSS**: Scoped under `.mobile-landing` class in `docs/bmb-shared.css` (+280 lines)
+- **JS**: `docs/bmb-shared.js` — IntersectionObserver card reveal + topbar counter gated behind `body.mobile-landing` class check; language routing between `m.*.html` files
+- **Links**: Each `docs/index*.html` file has a drawer link to the corresponding `m.*.html`
+
+---
+
 ## Session Continuity
 
 At Step 11, the Lead generates `.bmb/sessions/{session_id}/session-prep.md`:
