@@ -26,6 +26,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 - Codex hangs during re-test/re-verify loops now detected via output-gap stall heuristic (primary) + CPU auxiliary signal
 - Flat 3600s cross-model timeout replaced by per-profile defaults (targeted in v0.3.0 Known Issues)
 - Single-writer SQLite rule preserved: shim writes NDJSON only; Lead is the sole SQLite writer
+- **SQL injection in `bmb-external-incidents.sh`** — `$ts`, `$ts_ep`, `$ec` now escaped via `sed "s/'/''/g"` before INSERT (matched existing pattern for `$det`/`$src`/`$ek`)
+- **Blocking read in `bin/codex`** — replaced `proc.stdout.read(4096)` with `select.select()` loop; stall detection now executes correctly in non-TTY mode
+- **Missing `cross_model_verify` timeout** — added `timeouts.cross_model_verify: 900` to `defaults.json`; verify steps no longer fall back to unspecified default
 
 ### Constraints
 - No daemon, no always-on watcher
