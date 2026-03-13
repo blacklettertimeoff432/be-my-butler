@@ -184,7 +184,23 @@ CREATE TABLE pattern_counts (
   first_seen TEXT,
   last_seen TEXT
 );
+
+-- External dependency incidents (v0.3.4)
+-- Written by bin/codex shim and cross-model-run.sh to NDJSON spool;
+-- imported into this table at pipeline start via bmb_analytics_import_incidents()
+CREATE TABLE external_incidents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT,
+  tool TEXT,                 -- codex, gemini, ...
+  event_key TEXT,            -- auth_fail, stall, timeout, rate_limit, crash
+  severity TEXT,             -- info | warn | error | critical
+  exit_code INTEGER,
+  detail TEXT,
+  created_at TEXT
+);
 ```
+
+**Single-writer rule (v0.3.4):** The `bin/codex` shim and `cross-model-run.sh` write incidents to an NDJSON spool at `~/.claude/bmb-system/runtime/external-incidents.ndjson`. The Lead imports the spool into `external_incidents` at Step 1 via `bmb_analytics_import_incidents()` — ensuring SQLite always has a single writer (Lead only).
 
 ### Bird's Law Severity Model
 
@@ -231,6 +247,9 @@ Fixed JSON templates for lifecycle events:
 {"event":"agent_complete","step":"5","agent":"executor","result":".bmb/handoffs/exec-result.md","ts":"14:09"}
 {"event":"agent_timeout","step":"6","agent":"tester-cross","elapsed_sec":900,"ts":"14:15"}
 {"event":"merge_conflict","step":"5.5","files":"executor","ts":"14:06","severity":"error","tier":"1"}
+{"event":"recovery_attempt","step":"7","agent":"verifier-cross","attempt":1,"timeout_sec":300,"ts":"14:20"}
+{"event":"cross_model_degraded","step":"7","agent":"verifier-cross","reason":"restart_failed","ts":"14:26"}
+{"event":"external_incidents_imported","step":"1","count":3,"ts":"14:01"}
 ```
 
 ---
@@ -263,6 +282,57 @@ Both tracks are **blind** -- neither can read the other's output files. The nami
 **Why this works:** If a bug only appears when tested against the original user intent (briefing) but not against the design spec, it reveals an **assumption leak** -- the design diverged from what the user actually wanted.
 
 The Consultant is also **isolated** during Steps 6-7. It only receives results after Step 8 reconciliation, preventing it from biasing the verification.
+
+---
+
+## Codex Shim + External Incident Pipeline (v0.3.4)
+
+BMB wraps the real `codex` binary with a transparent Python shim (`bmb-system/bin/codex`) that intercepts failures without changing normal behavior.
+
+### Incident Flow
+
+```
+bin/codex (shim)
+  │  TTY passthrough for interactive mode
+  │  Non-TTY: stream large output to temp file (not RAM buffer)
+  │  Stall detection: output gap > 180s (primary) + CPU < 5% (auxiliary only)
+  │  Auth failure detection: 401/auth patterns in stderr
+  ▼
+~/.claude/bmb-system/runtime/external-incidents.ndjson  (NDJSON spool)
+  │  Single-line JSON per event
+  │  Sanitized: strips Bearer tokens, sk-* keys, emails, home paths
+  ▼
+bmb_analytics_import_incidents()   (called at Step 1 init)
+  │  Lead reads spool → INSERT into external_incidents + events + pattern_counts
+  │  Only Lead writes to SQLite (single-writer rule preserved)
+  ▼
+Analyst (Step 10.5)
+  └─ queries external_incidents + recovery_attempt events for dependency report
+```
+
+### Incident Types
+
+| Event Key | Trigger | Severity |
+|-----------|---------|---------|
+| `auth_fail` | HTTP 401 or auth error in stderr | `error` |
+| `stall` | No output for 180s + CPU < 5% | `warn` |
+| `timeout` | Exit code 124 or elapsed > profile limit | `error` |
+| `rate_limit` | HTTP 429 in stderr | `warn` |
+| `crash` | Exit code > 128 (signal) | `critical` |
+
+### Profile-Based Timeouts (v0.3.4)
+
+Each cross-model profile has its own default timeout instead of sharing a flat 3600s:
+
+| Profile | Default Timeout | Notes |
+|---------|----------------|-------|
+| `council` | 600s | Brainstorm plan review |
+| `verify` | 600s | Blind verification |
+| `review` | 600s | Architecture review |
+| `test` | 1200s | Test execution |
+| `exec-assist` | 3600s | Full execution assistance |
+| `recovery_restart` | 300s | Bounded restart (< any profile timeout) |
+| `targeted_reverify` | 600s | Re-verify after simplification |
 
 ---
 
@@ -362,11 +432,13 @@ BMB never blocks on optional dependencies. If a capability is unavailable, the p
 |-----------|--------------|--------|
 | Cross-model CLI unavailable | Claude-only testing/verification | Loses blind divergent framing |
 | Gemini unavailable but Codex works | Use Codex as cross-model | None (single provider sufficient) |
+| Cross-model timeout (v0.3.4) | Recovery-first: one bounded restart (300s), then Claude-only | Minimal — single recovery attempt before degradation |
 | Council debate timeout | Solo architecture (Claude only) | Loses adversarial design challenge |
 | Frontend agent not needed | Skip frontend worktree/merge | None |
 | `knowledge.db` corrupted | Delete and re-index | Loses past session search |
 | `session-prep.md` missing | Fresh start (no continuity) | Loses prior session context |
 | `analytics.db` missing | Analyst skips; logs warning to `session-log.md` | Loses pattern analysis for this session |
+| NDJSON incident spool missing (v0.3.4) | Skip incident import; log warning | Loses off-session incident history |
 | Context7 unavailable | Agents fall back to memorized API knowledge | Risk of stale-SDK errors |
 | Telegram not configured | Skip notifications | No user alerts |
 

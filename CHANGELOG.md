@@ -3,6 +3,36 @@
 All notable changes to BMB will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioned per [Semantic Versioning](https://semver.org/).
 
+## [0.3.4] - 2026-03-13
+
+### Added
+- **External dependency incident capture** — `bin/codex` Python shim transparently wraps the real codex binary; records auth failures, stalls, timeouts, rate limits, and crashes to NDJSON spool (never SQLite directly)
+- **`bmb-external-incidents.sh`** — NDJSON spool management: record, import, rotate, list, sanitize, classify
+- **Recovery-first bounded restart** — on cross-model timeout, `cross-model-run.sh` attempts one restart (300s) before graceful degradation to Claude-only mode
+- **Profile-based timeouts** — each cross-model profile (`council`, `verify`, `review`, `test`, `exec-assist`) gets its own default timeout; no more shared 3600s for all profiles
+- **External incident analytics** — `bmb_analytics_import_incidents()` bridges NDJSON spool → `external_incidents` table + `events` + `pattern_counts` at pipeline init
+- **Analyst dependency reports** — Step 10.5 now queries `external_incidents` and recovery patterns for richer retrospectives (`bmb-analyst.md` Step 3.5)
+- **Monitor subagent config** — `defaults.json` keys for Lead-owned metadata-only monitor (Haiku-class, no pane, no daemon)
+
+### Changed
+- **`cross-model-run.sh`** — incident recording on all failure types (cli_missing, timeout, nonzero, auth); differentiated exit codes (0=success, 1=missing/general, 2=timeout, 3=killed)
+- **`defaults.json`** — added `timeouts.*`, `recovery.*`, `monitor.*`, and `incidents.*` config keys
+- **`skills/bmb/bmb.md`** — Step 1 now sources `bmb-external-incidents.sh` and imports incidents at init; graceful degradation rewritten to recovery-first policy with exit-code classification
+- **`skills/bmb-brainstorm/SKILL.md`** — Phase 4.5 updated with profile-based timeout notes and exit-code-based degradation branches
+- **`agents/bmb-consultant.md`** — added Monitor Lifecycle Updates section (v0.3.4) with blind-phase isolation rules for monitor events
+- **`agents/bmb-analyst.md`** — added Step 3.5: External Dependency Failures & Recovery
+
+### Fixed
+- Codex hangs during re-test/re-verify loops now detected via output-gap stall heuristic (primary) + CPU auxiliary signal
+- Flat 3600s cross-model timeout replaced by per-profile defaults (targeted in v0.3.0 Known Issues)
+- Single-writer SQLite rule preserved: shim writes NDJSON only; Lead is the sole SQLite writer
+
+### Constraints
+- No daemon, no always-on watcher
+- CPU used as auxiliary stall signal only (not sole indicator)
+- Large output streamed to temp file (no RAM buffering)
+- Consultant blind-phase isolation preserved
+
 ## [0.3.0] - 2026-03-13
 
 ### Added
@@ -117,6 +147,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 - `bmb-learn.sh`: missing `mkdir -p` for global learnings directory
 - Worktree cleanup does not delete branches after `git worktree remove`
 
+[0.3.4]: https://github.com/project820/be-my-butler/releases/tag/v0.3.4
 [0.3.0]: https://github.com/project820/be-my-butler/releases/tag/v0.3.0
 [0.2.0]: https://github.com/project820/be-my-butler/releases/tag/v0.2.0
 [0.1.0]: https://github.com/project820/be-my-butler/releases/tag/v0.1.0

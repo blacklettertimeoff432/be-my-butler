@@ -1,3 +1,69 @@
+# What's New in BMB v0.3
+
+## v0.3.4 — External Dependency Incidents + Monitor Recovery
+
+**Release date**: 2026-03-13
+
+BMB v0.3.4 adds operational reliability for cross-model pipelines. Codex failures are now captured automatically, the pipeline recovers before giving up, and each cross-model profile gets its own timeout budget.
+
+### Highlights
+
+#### Automatic Incident Capture
+
+A transparent Python shim (`bmb-system/bin/codex`) wraps the real Codex binary. All failures — auth errors, stalls, timeouts, rate limits, crashes — are recorded to an NDJSON spool without any manual logging. The spool is imported into `analytics.db` at pipeline start so the Analyst (Step 10.5) sees the full dependency health picture.
+
+#### Recovery-First Bounded Restart
+
+When a cross-model agent times out, the pipeline no longer immediately falls back to Claude-only mode. It attempts **one bounded restart** (300s) first. If the restart also fails, it degrades gracefully. This single recovery attempt catches transient failures without introducing indefinite waits.
+
+#### Profile-Based Timeouts
+
+All cross-model profiles share a flat 3600s timeout was a known issue in v0.3.0. v0.3.4 fixes this:
+
+| Profile | Default |
+|---------|---------|
+| `council` | 600s |
+| `verify` | 600s |
+| `review` | 600s |
+| `test` | 1200s |
+| `exec-assist` | 3600s |
+| `recovery_restart` | 300s |
+
+#### Codex Shim Design
+
+- TTY passthrough — interactive Codex sessions work unchanged
+- Non-TTY: large output streamed to temp file, not RAM buffer
+- Stall detection: output gap > 180s (primary) + CPU < 5% (auxiliary only)
+- Single-writer SQLite rule preserved: shim writes NDJSON only; Lead imports
+
+### New Files
+
+| File | Purpose |
+|------|---------|
+| `bmb-system/bin/codex` | Transparent Python shim for Codex incident capture |
+| `bmb-system/scripts/bmb-external-incidents.sh` | NDJSON spool: record, import, rotate, sanitize, classify |
+
+### Modified Files
+
+| File | Change |
+|------|--------|
+| `bmb-system/scripts/bmb-analytics.sh` | +3 functions: `import_incidents`, `pattern_count`, `recovery_marker` |
+| `bmb-system/scripts/cross-model-run.sh` | Profile timeouts, incident recording, recovery-first restart |
+| `bmb-system/config/defaults.json` | `timeouts.*`, `recovery.*`, `monitor.*`, `incidents.*` keys |
+| `skills/bmb/bmb.md` | Step 1 init sources incidents; recovery-first degradation policy |
+| `skills/bmb-brainstorm/SKILL.md` | Phase 4.5: profile timeouts + exit-code degradation branches |
+| `agents/bmb-consultant.md` | Monitor Lifecycle Updates section with blind-phase isolation |
+| `agents/bmb-analyst.md` | Step 3.5: External Dependency Failures & Recovery queries |
+
+### Key Constraints
+
+- No daemon, no always-on watcher
+- CPU as auxiliary stall signal only (not sole indicator)
+- Large output streamed to disk (no RAM buffering)
+- Consultant blind-phase isolation preserved
+
+---
+
 # What's New in BMB v0.3.0
 
 **Release date**: 2026-03-13
