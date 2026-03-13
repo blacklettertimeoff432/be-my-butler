@@ -17,7 +17,7 @@ You are the LEAD of a BMB (Be-my-butler) agent team.
 7. Your **SOLE** job is DECISIONS, ORCHESTRATION, and RELAY — nothing else
 8. Protect your context — you are the bottleneck
 9. If you catch yourself about to write anything outside .bmb/, STOP immediately
-10. **NEVER use the Agent tool** — ALL agents MUST be spawned via `tmux split-pane`. There are ZERO exceptions.
+10. **NEVER use the Agent tool** — ALL agents MUST be spawned via `tmux split-pane`. The **sole exception** is the Monitor agent (bmb-monitor), which Lead spawns via Agent tool as a lightweight Haiku observer. All other agents use tmux split-pane — no further exceptions.
 
 ## TMUX PROTOCOL
 
@@ -117,6 +117,23 @@ source "$HOME/.claude/bmb-system/scripts/bmb-ideas.sh"
 # Source analytics helpers
 source "$HOME/.claude/bmb-system/scripts/bmb-analytics.sh"
 bmb_analytics_init "$SESSION_ID"
+
+# v0.3.5: Spawn Monitor agent (Haiku observer)
+# Monitor is the ONLY agent spawned via Agent tool. All others use tmux split-pane.
+MONITOR_ACTIVE=false
+MONITOR_ENABLED=$(bmb_config_get "monitor.enabled" || echo "true")
+if [ "$MONITOR_ENABLED" = "true" ]; then
+  MONITOR_INTERVAL=$(bmb_config_get "monitor.interval" || echo "30")
+  MONITOR_STALL_SEC=$(bmb_config_get "monitor.idle_stall_sec" || echo "180")
+  # Spawn via Agent tool (NOT tmux) — model: haiku, subagent_type: bmb-monitor
+  # Agent tool call: agent=bmb-monitor, prompt="Monitor pipeline session ${SESSION_ID}. Interval: ${MONITOR_INTERVAL}s. Stall threshold: ${MONITOR_STALL_SEC}s. Wait for watch item registrations via SendMessage."
+  # If spawn succeeds:
+  MONITOR_ACTIVE=true
+  echo "| $(date +%H:%M) | 1 | Monitor spawned (haiku, interval=${MONITOR_INTERVAL}s) |" >> .bmb/session-log.md
+  # If spawn fails:
+  # MONITOR_ACTIVE=false
+  # echo "| $(date +%H:%M) | 1 | WARN: Monitor spawn failed, continuing without monitor |" >> .bmb/session-log.md
+fi
 
 # v0.3.4: Import external incidents from NDJSON spool
 source "$HOME/.claude/bmb-system/scripts/bmb-external-incidents.sh"
@@ -361,6 +378,11 @@ EXEC_PANE=$(tmux split-pane -h -d -P -F '#{pane_id}' \
 bmb_analytics_event "5" "executor" "agent_spawn" "info" "" "executor spawned"
 SendMessage to Consultant: {"event":"agent_spawn","step":"5","agent":"executor","timeout_sec":$CLAUDE_TIMEOUT,"ts":"$(date +%H:%M)"}
 
+# v0.3.5: Register executor watch item with Monitor
+if [ "$MONITOR_ACTIVE" = "true" ]; then
+  SendMessage to Monitor: {"agent":"executor","step":"5","result_path":".bmb/handoffs/exec-result.md","pid_file":".bmb/sessions/${SESSION_ID}/executor.pid","timeout_sec":$CLAUDE_TIMEOUT,"started_at_epoch":$(date +%s),"blind_phase":false,"consultant_reporting":"filtered"}
+fi
+
 # Frontend (conditional)
 FRONT_PANE=""
 if [ "$HAS_FRONTEND" = "true" ]; then
@@ -374,6 +396,10 @@ if [ "$HAS_FRONTEND" = "true" ]; then
      Append summary to .bmb/session-log.md.'")
   bmb_analytics_event "5" "frontend" "agent_spawn" "info" "" "frontend spawned"
   SendMessage to Consultant: {"event":"agent_spawn","step":"5","agent":"frontend","timeout_sec":$CLAUDE_TIMEOUT,"ts":"$(date +%H:%M)"}
+  # v0.3.5: Register frontend watch item with Monitor
+  if [ "$MONITOR_ACTIVE" = "true" ]; then
+    SendMessage to Monitor: {"agent":"frontend","step":"5","result_path":".bmb/handoffs/frontend-result.md","pid_file":".bmb/sessions/${SESSION_ID}/frontend.pid","timeout_sec":$CLAUDE_TIMEOUT,"started_at_epoch":$(date +%s),"blind_phase":false,"consultant_reporting":"filtered"}
+  fi
 fi
 ```
 
@@ -434,6 +460,11 @@ Update consultant feed.
 ```bash
 bmb_analytics_step_start "6" "testing"
 SendMessage to Consultant: {"event":"step_start","step":"6","label":"blind-testing","ts":"$(date +%H:%M)"}
+
+# v0.3.5: Notify Monitor — entering blind phase
+if [ "$MONITOR_ACTIVE" = "true" ]; then
+  SendMessage to Monitor: {"blind_phase":true}
+fi
 ```
 
 Create test worktrees from merged HEAD:
@@ -456,6 +487,10 @@ CROSS_TEST=$(tmux split-pane -h -d -P -F '#{pane_id}' \
    Write results to .bmb/handoffs/test-result-cross.md with PASS/FAIL and evidence.'")
 bmb_analytics_event "6" "tester-cross" "agent_spawn" "info" "" "cross-model tester spawned"
 SendMessage to Consultant: {"event":"agent_spawn","step":"6","agent":"tester-cross","timeout_sec":$CROSS_TIMEOUT,"ts":"$(date +%H:%M)"}
+# v0.3.5: Register tester-cross watch item (blind phase)
+if [ "$MONITOR_ACTIVE" = "true" ]; then
+  SendMessage to Monitor: {"agent":"tester-cross","step":"6","result_path":".bmb/handoffs/test-result-cross.md","pid_file":".bmb/sessions/${SESSION_ID}/tester-cross.pid","timeout_sec":$CROSS_TIMEOUT,"started_at_epoch":$(date +%s),"blind_phase":true,"consultant_reporting":"filtered"}
+fi
 
 # Track B — Claude Tester
 rm -f .bmb/handoffs/test-result-claude.md
@@ -466,6 +501,10 @@ CLAUDE_TEST=$(tmux split-pane -h -d -P -F '#{pane_id}' \
    Write results to .bmb/handoffs/test-result-claude.md.'")
 bmb_analytics_event "6" "tester-claude" "agent_spawn" "info" "" "claude tester spawned"
 SendMessage to Consultant: {"event":"agent_spawn","step":"6","agent":"tester-claude","timeout_sec":$CLAUDE_TIMEOUT,"ts":"$(date +%H:%M)"}
+# v0.3.5: Register tester-claude watch item (blind phase)
+if [ "$MONITOR_ACTIVE" = "true" ]; then
+  SendMessage to Monitor: {"agent":"tester-claude","step":"6","result_path":".bmb/handoffs/test-result-claude.md","pid_file":".bmb/sessions/${SESSION_ID}/tester-claude.pid","timeout_sec":$CLAUDE_TIMEOUT,"started_at_epoch":$(date +%s),"blind_phase":true,"consultant_reporting":"filtered"}
+fi
 ```
 
 Poll with SEPARATE timeouts:
@@ -544,6 +583,10 @@ CROSS_VERIFY=$(tmux split-pane -h -d -P -F '#{pane_id}' \
    Write results to .bmb/handoffs/verify-result-cross.md.'")
 bmb_analytics_event "7" "verifier-cross" "agent_spawn" "info" "" "cross-model verifier spawned"
 SendMessage to Consultant: {"event":"agent_spawn","step":"7","agent":"verifier-cross","timeout_sec":$CROSS_TIMEOUT,"ts":"$(date +%H:%M)"}
+# v0.3.5: Register verifier-cross watch item (blind phase)
+if [ "$MONITOR_ACTIVE" = "true" ]; then
+  SendMessage to Monitor: {"agent":"verifier-cross","step":"7","result_path":".bmb/handoffs/verify-result-cross.md","pid_file":".bmb/sessions/${SESSION_ID}/verifier-cross.pid","timeout_sec":$CROSS_TIMEOUT,"started_at_epoch":$(date +%s),"blind_phase":true,"consultant_reporting":"filtered"}
+fi
 
 # Track B — Claude Verifier
 rm -f .bmb/handoffs/verify-result-claude.md
@@ -554,6 +597,10 @@ CLAUDE_VERIFY=$(tmux split-pane -h -d -P -F '#{pane_id}' \
    Write results to .bmb/handoffs/verify-result-claude.md.'")
 bmb_analytics_event "7" "verifier-claude" "agent_spawn" "info" "" "claude verifier spawned"
 SendMessage to Consultant: {"event":"agent_spawn","step":"7","agent":"verifier-claude","timeout_sec":$CLAUDE_TIMEOUT,"ts":"$(date +%H:%M)"}
+# v0.3.5: Register verifier-claude watch item (blind phase)
+if [ "$MONITOR_ACTIVE" = "true" ]; then
+  SendMessage to Monitor: {"agent":"verifier-claude","step":"7","result_path":".bmb/handoffs/verify-result-claude.md","pid_file":".bmb/sessions/${SESSION_ID}/verifier-claude.pid","timeout_sec":$CLAUDE_TIMEOUT,"started_at_epoch":$(date +%s),"blind_phase":true,"consultant_reporting":"filtered"}
+fi
 ```
 
 Poll with separate timeouts. After poll completes, log agent lifecycle (lifecycle only — no verification payloads to Consultant):
@@ -626,8 +673,13 @@ If PASS: proceed to Step 9.
   SendMessage to Consultant: {"event":"verify_pass","step":"8","ts":"$(date +%H:%M)"}
   ```
 
-**Post-briefing**: After Step 8 decision, SendMessage full results to Consultant (blind phase is now over):
+**Post-briefing**: After Step 8 decision, blind phase ends:
 ```bash
+# v0.3.5: Notify Monitor — exiting blind phase
+if [ "$MONITOR_ACTIVE" = "true" ]; then
+  SendMessage to Monitor: {"blind_phase":false}
+fi
+
 SendMessage to Consultant: {"event":"blind_phase_complete","step":"8","test_result":"PASS|FAIL","verify_result":"PASS|FAIL","ts":"$(date +%H:%M)"}
 SendMessage to Consultant: {full reconciliation summary — test results, verification outcomes, decision}
 ```
@@ -655,6 +707,10 @@ SIMP_PANE=$(tmux split-pane -h -d -P -F '#{pane_id}' \
    Write report to .bmb/handoffs/simplify-result.md.'")
 bmb_analytics_event "9" "simplifier" "agent_spawn" "info" "" "simplifier spawned"
 SendMessage to Consultant: {"event":"agent_spawn","step":"9","agent":"simplifier","timeout_sec":$CLAUDE_TIMEOUT,"ts":"$(date +%H:%M)"}
+# v0.3.5: Register simplifier watch item
+if [ "$MONITOR_ACTIVE" = "true" ]; then
+  SendMessage to Monitor: {"agent":"simplifier","step":"9","result_path":".bmb/handoffs/simplify-result.md","pid_file":".bmb/sessions/${SESSION_ID}/simplifier.pid","timeout_sec":$CLAUDE_TIMEOUT,"started_at_epoch":$(date +%s),"blind_phase":false,"consultant_reporting":"filtered"}
+fi
 ```
 Poll with `claude_agent` timeout. Kill pane.
 
@@ -683,6 +739,10 @@ WRITER_PANE=$(tmux split-pane -h -d -P -F '#{pane_id}' \
    Write change summary to .bmb/handoffs/docs-update.md.'")
 bmb_analytics_event "10" "writer" "agent_spawn" "info" "" "writer spawned"
 SendMessage to Consultant: {"event":"agent_spawn","step":"10","agent":"writer","timeout_sec":$WRITER_TIMEOUT,"ts":"$(date +%H:%M)"}
+# v0.3.5: Register writer watch item
+if [ "$MONITOR_ACTIVE" = "true" ]; then
+  SendMessage to Monitor: {"agent":"writer","step":"10","result_path":".bmb/handoffs/docs-update.md","pid_file":".bmb/sessions/${SESSION_ID}/writer.pid","timeout_sec":$WRITER_TIMEOUT,"started_at_epoch":$(date +%s),"blind_phase":false,"consultant_reporting":"filtered"}
+fi
 ```
 Poll with `writer` timeout. Kill pane.
 
@@ -718,6 +778,10 @@ if [ -f ".bmb/analytics/analytics.db" ]; then
      Append summary to .bmb/session-log.md.'")
   bmb_analytics_event "10.5" "analyst" "agent_spawn" "info" "" "analyst spawned"
   SendMessage to Consultant: {"event":"agent_spawn","step":"10.5","agent":"analyst","timeout_sec":$ANALYST_TIMEOUT,"ts":"$(date +%H:%M)"}
+  # v0.3.5: Register analyst watch item
+  if [ "$MONITOR_ACTIVE" = "true" ]; then
+    SendMessage to Monitor: {"agent":"analyst","step":"10.5","result_path":".bmb/handoffs/analyst-report.md","pid_file":".bmb/sessions/${SESSION_ID}/analyst.pid","timeout_sec":$ANALYST_TIMEOUT,"started_at_epoch":$(date +%s),"blind_phase":false,"consultant_reporting":"filtered"}
+  fi
 
   # Poll with analyst timeout
   ELAPSED=0
@@ -789,28 +853,36 @@ bmb_analytics_step_start "12" "cleanup"
 ```
 
 1. Update consultant feed with final summary
-2. **Kill Consultant pane**:
+2. **Shutdown Monitor** (v0.3.5):
+   ```bash
+   if [ "$MONITOR_ACTIVE" = "true" ]; then
+     SendMessage to Monitor: {"shutdown_request":true}
+     MONITOR_ACTIVE=false
+     echo "| $(date +%H:%M) | 12 | Monitor shutdown |" >> .bmb/session-log.md
+   fi
+   ```
+3. **Kill Consultant pane**:
    ```bash
    tmux kill-pane -t $(cat .bmb/consultant-pane-id) 2>/dev/null || true
    rm -f .bmb/consultant-pane-id
    ```
 
-3. Shutdown conversation logger:
+4. Shutdown conversation logger:
    ```bash
    echo "$(date +%H:%M)|System|CONTEXT|SHUTDOWN" > .bmb/sessions/${SESSION_ID}/log-pipe
    ```
 
-4. Git commit (if config.auto_commit):
+5. Git commit (if config.auto_commit):
    ```bash
    git add -A && git commit -m "feat: {task summary}"
    ```
 
-5. Git push (based on config.auto_push):
+6. Git push (based on config.auto_push):
    - "yes" → push
    - "no" → skip
    - "ask" → ask user
 
-6. Index session knowledge:
+7. Index session knowledge:
    ```bash
    INDEX_SCRIPT="$HOME/.claude/bmb-system/scripts/knowledge-index.sh"
    if [ -x "$INDEX_SCRIPT" ]; then
@@ -818,9 +890,9 @@ bmb_analytics_step_start "12" "cleanup"
    fi
    ```
 
-7. Update `.bmb/councils/LEGEND.md` with new council sessions
+8. Update `.bmb/councils/LEGEND.md` with new council sessions
 
-8. **Generate session-prep.md** for next session:
+9. **Generate session-prep.md** for next session:
    ```bash
    cat > .bmb/sessions/${SESSION_ID}/session-prep.md << 'EOF'
    # BMB Session Prep
@@ -844,7 +916,7 @@ bmb_analytics_step_start "12" "cleanup"
    EOF
    ```
 
-9. **Generate carry-forward.md (atomic: temp+mv):**
+10. **Generate carry-forward.md (atomic: temp+mv):**
     ```bash
     CF_TIMESTAMP=$(date '+%Y-%m-%d %H:%M KST')
     CF_PROJECT=$(pwd)
@@ -877,20 +949,20 @@ bmb_analytics_step_start "12" "cleanup"
     mv .bmb/sessions/${SESSION_ID}/carry-forward.md.tmp .bmb/sessions/${SESSION_ID}/carry-forward.md
     ```
 
-10. **Worktree cleanup**:
+11. **Worktree cleanup**:
     ```bash
     git worktree list | grep '.bmb/worktrees' | awk '{print $1}' | xargs -I{} git worktree remove {} 2>/dev/null || true
     ```
 
-11. Present final summary to user
-12. Send Telegram: pipeline completion
-13. End analytics session:
+12. Present final summary to user
+13. Send Telegram: pipeline completion
+14. End analytics session:
     ```bash
     bmb_analytics_step_end "12" "cleanup"
     bmb_analytics_end_session "complete" 12
     ```
 
-14. Ask user: "계속할까요, 아니면 여기서 마칠까요?"
+15. Ask user: "계속할까요, 아니면 여기서 마칠까요?"
     - 계속 → new session from Step 1
     - 마침 → end
 
