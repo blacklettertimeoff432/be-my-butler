@@ -42,8 +42,11 @@ _bmb_incidents_classify() {
     *retest_timeout)                echo "warn" ;;
     *recovery_restart_failed)       echo "error" ;;
     *recovery_restart_attempted)    echo "info" ;;
+    *preflight_failed)              echo "error" ;;
     *mcp_handshake_failed)          echo "warn" ;;
     *login_recovered)               echo "info" ;;
+    *rate_limit)                    echo "warn" ;;
+    *stall_detected)                echo "warn" ;;
     *crash)                         echo "critical" ;;
     *)                              echo "info" ;;
   esac

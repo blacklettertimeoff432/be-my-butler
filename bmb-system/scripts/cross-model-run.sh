@@ -6,6 +6,30 @@
 #
 # Usage: cross-model-run.sh [--profile PROFILE] 'prompt here'
 # Profiles: council (read-only), verify (read-only), review (plan critique), test (test files), exec-assist (write)
+#
+# Exit codes:
+#   0 = success
+#   1 = CLI not found / general failure (DEGRADED)
+#   2 = timeout (DEGRADED)
+#   3 = process hung/killed (DEGRADED)
+#   4 = auth failure (401/unauthorized detected)
+#   5 = preflight failure (provider CLI broken before invocation)
+#   6 = stall detected (process alive but no output for N seconds)
+
+# --- Portable timeout fallback (macOS ships without coreutils timeout) ---
+if ! command -v timeout &>/dev/null; then
+  timeout() {
+    local duration="$1"; shift
+    perl -e '
+      $SIG{ALRM} = sub { kill 9, $pid; exit 124 };
+      alarm(shift);
+      $pid = fork // die;
+      if ($pid == 0) { exec @ARGV; die "exec: $!" }
+      waitpid($pid, 0);
+      exit ($? >> 8);
+    ' "$duration" "$@"
+  }
+fi
 
 set -euo pipefail
 
@@ -131,14 +155,56 @@ fi
 
 FULL_PROMPT="${PERM_PREFIX}${COMPRESS_PREFIX}${PROMPT}"
 
+# --- Preflight check (v0.3.5) ---
+# Verify provider CLI is functional before committing to a long invocation
+_PREFLIGHT_TIMEOUT="${BMB_PREFLIGHT_TIMEOUT:-10}"
+if [ -f "$CONFIG_FILE" ] && command -v python3 &>/dev/null; then
+  _pf=$(_BMB_CFG="$CONFIG_FILE" python3 -c "
+import json, os
+try:
+    c = json.load(open(os.environ['_BMB_CFG']))
+    print(c.get('cross_model', {}).get('preflight_timeout', 10))
+except:
+    print(10)
+" 2>/dev/null) || _pf=10
+  _PREFLIGHT_TIMEOUT="$_pf"
+fi
+
+_codex_preflight() {
+  if ! command -v codex &>/dev/null; then
+    echo "PREFLIGHT FAIL: codex CLI not found" >&2
+    _bmb_record_incident "codex_cli_missing" "profile=$PROFILE preflight=true" 1 "cross-model-run"
+    return 1
+  fi
+  # Quick version check to verify CLI is responsive
+  if ! timeout "$_PREFLIGHT_TIMEOUT" codex --version &>/dev/null; then
+    echo "PREFLIGHT FAIL: codex --version timed out or failed" >&2
+    _bmb_record_incident "codex_preflight_failed" "profile=$PROFILE timeout=${_PREFLIGHT_TIMEOUT}s" 5 "cross-model-run"
+    return 1
+  fi
+  return 0
+}
+
+_gemini_preflight() {
+  if ! command -v gemini &>/dev/null; then
+    echo "PREFLIGHT FAIL: gemini CLI not found" >&2
+    _bmb_record_incident "gemini_cli_missing" "profile=$PROFILE preflight=true" 1 "cross-model-run"
+    return 1
+  fi
+  if ! timeout "$_PREFLIGHT_TIMEOUT" gemini --version &>/dev/null; then
+    echo "PREFLIGHT FAIL: gemini --version timed out or failed" >&2
+    _bmb_record_incident "gemini_preflight_failed" "profile=$PROFILE timeout=${_PREFLIGHT_TIMEOUT}s" 5 "cross-model-run"
+    return 1
+  fi
+  return 0
+}
+
 # --- Invoke provider ---
 case "$PROVIDER" in
   codex)
-    if ! command -v codex &>/dev/null; then
-      echo "ERROR: codex CLI not found. Install or switch provider in config." >&2
+    if ! _codex_preflight; then
       echo "DEGRADED: Cross-model unavailable, proceeding Claude-only" >&2
-      _bmb_record_incident "codex_cli_missing" "profile=$PROFILE" 1 "cross-model-run"
-      exit 1
+      exit 5
     fi
     MODEL_ARGS=""
     if [ -n "$MODEL_OVERRIDE" ]; then
@@ -146,15 +212,32 @@ case "$PROVIDER" in
     fi
 
     # --- v0.3.4: timeout + stall detection + recovery-first ---
+    # --- v0.3.5: stderr separation + auth detection + stall exit code ---
     _RECOVERY_ATTEMPTED=false
     _run_codex() {
       local attempt="${1:-1}"
-      local output_tmp
+      local output_tmp stderr_tmp
       if [ -n "$OUTPUT_FILE" ]; then
         output_tmp="${OUTPUT_FILE}.tmp.$$"
-        # Stream to temp file (not RAM buffer)
-        timeout "$TIMEOUT" codex exec $MODEL_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT" > "$output_tmp" 2>&1
+        stderr_tmp="${OUTPUT_FILE}.stderr.$$"
+        # Stream stdout/stderr separately (v0.3.5)
+        timeout "$TIMEOUT" codex exec $MODEL_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT" > "$output_tmp" 2>"$stderr_tmp"
         local rc=$?
+
+        # Check stderr for error patterns
+        if [ -s "$stderr_tmp" ]; then
+          if grep -qi '401\|auth\|unauthorized' "$stderr_tmp" 2>/dev/null; then
+            _bmb_record_incident "codex_auth_401" "profile=$PROFILE attempt=$attempt" "$rc" "cross-model-run"
+          fi
+          if grep -qi 'rate.limit\|429\|too.many.requests' "$stderr_tmp" 2>/dev/null; then
+            _bmb_record_incident "codex_rate_limit" "profile=$PROFILE attempt=$attempt" "$rc" "cross-model-run"
+          fi
+          # Keep stderr for debugging
+          mv "$stderr_tmp" "${OUTPUT_FILE}.stderr" 2>/dev/null || true
+        else
+          rm -f "$stderr_tmp"
+        fi
+
         if [ $rc -eq 0 ] && [ -s "$output_tmp" ]; then
           mv "$output_tmp" "$OUTPUT_FILE"
         else
@@ -221,25 +304,31 @@ except:
 
     else
       # General non-zero exit
-      # Check for auth failure patterns
+      # Check stderr for auth failure (v0.3.5: stderr is now separated)
+      if [ -n "$OUTPUT_FILE" ] && [ -f "${OUTPUT_FILE}.stderr" ]; then
+        if grep -qi '401\|auth\|unauthorized' "${OUTPUT_FILE}.stderr" 2>/dev/null; then
+          _bmb_record_incident "codex_auth_401" "profile=$PROFILE" $_EXIT_CODE "cross-model-run"
+          exit 4  # exit 4 = auth failure
+        fi
+      fi
+      # Fallback: check partial output for auth patterns
       if [ -n "$OUTPUT_FILE" ] && [ -f "${OUTPUT_FILE}.partial" ]; then
         if grep -qi '401\|auth\|unauthorized' "${OUTPUT_FILE}.partial" 2>/dev/null; then
           _bmb_record_incident "codex_auth_401" "profile=$PROFILE" $_EXIT_CODE "cross-model-run"
+          exit 4  # exit 4 = auth failure
         fi
       fi
       _bmb_record_incident "codex_exec_nonzero" "profile=$PROFILE exit=$_EXIT_CODE" $_EXIT_CODE "cross-model-run"
-      exit 1  # exit 1 = CLI not found or general failure (DEGRADED)
+      exit 1  # exit 1 = general failure (DEGRADED)
     fi
 
     exit $_EXIT_CODE
     ;;
 
   gemini)
-    if ! command -v gemini &>/dev/null; then
-      echo "ERROR: gemini CLI not found. Install or switch provider in config." >&2
+    if ! _gemini_preflight; then
       echo "DEGRADED: Cross-model unavailable, proceeding Claude-only" >&2
-      _bmb_record_incident "gemini_cli_missing" "profile=$PROFILE" 1 "cross-model-run"
-      exit 1
+      exit 5
     fi
     MODEL_ARGS=""
     if [ -n "$MODEL_OVERRIDE" ]; then
