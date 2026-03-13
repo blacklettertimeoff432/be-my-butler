@@ -10,7 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
-[![Agents](https://img.shields.io/badge/agents-9-orange.svg)](#the-9-agents)
+[![Agents](https://img.shields.io/badge/agents-10-orange.svg)](#the-10-agents)
 [![Steps](https://img.shields.io/badge/pipeline_steps-12-teal.svg)](#the-12-step-pipeline)
 [![What's New](https://img.shields.io/badge/what's_new-v0.3.5-green.svg)](WHATS-NEW-0.3.5.md)
 
@@ -35,7 +35,7 @@ Solo AI coding assistants are fast — but they hallucinate, skip edge cases, an
 | **"Works for me" testing** | Divergent framing — verifier receives a deliberately reworded spec to catch assumption leaks |
 | **Lost knowledge** | FTS5 knowledge base + auto-learning promotes recurring lessons automatically |
 
-> BMB doesn't replace your judgment — it gives you **9 opinionated experts** who argue before you decide.
+> BMB doesn't replace your judgment — it gives you **10 opinionated experts** who argue before you decide.
 
 ---
 
@@ -201,7 +201,7 @@ Architect, Executor, and Frontend agents query **live library documentation** vi
 
 ---
 
-## The 9 Agents
+## The 10 Agents
 
 | Agent | Role | Model |
 |---|---|---|
@@ -214,6 +214,7 @@ Architect, Executor, and Frontend agents query **live library documentation** vi
 | **Verifier** | Cross-model blind review | Codex / Gemini / Claude |
 | **Simplifier** | Dead code removal, complexity reduction | Claude |
 | **Analyst** | Retrospective analytics: Bird's Law severity classification, `pattern_counts` promotion candidates | Claude (bypassPermissions, read-only) |
+| **Monitor** | Lead-owned lightweight observer: metadata-only stall detection, timeout warnings, blind phase filtering. Optional dependency — never blocks pipeline. | Claude Haiku |
 
 > The **Writer** agent handles documentation generation as a sub-role of the pipeline.
 
@@ -257,7 +258,7 @@ Mobile-optimized summary pages (7-card vertical scroll, 4 locales):
 ```
 ~/Projects/bmb/              # Source of truth (GitHub repo)
 ├── skills/bmb*/             # 5 slash command skills
-├── agents/bmb-*.md          # 9 agent definitions
+├── agents/bmb-*.md          # 10 agent definitions
 ├── bmb-system/
 │   ├── config/              # defaults.json (v2)
 │   ├── scripts/             # cross-model-run.sh, bmb-config.sh, bmb-ideas.sh, bmb-analytics.sh, ...

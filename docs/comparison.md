@@ -8,7 +8,7 @@ An honest comparison of BMB against other AI coding tools. Every tool has trade-
 
 | Capability | BMB | Aider | Composio | opencode |
 |---|---|---|---|---|
-| Multi-agent orchestration | 9 specialized agents | Single agent | Depends on integration | Single agent |
+| Multi-agent orchestration | 10 specialized agents | Single agent | Depends on integration | Single agent |
 | Cross-model verification | Blind divergent protocol | No | No | No |
 | Council debate | Multi-round adversarial | No | No | No |
 | Worktree isolation | Per-agent git worktrees | No | N/A | No |
@@ -67,7 +67,7 @@ An honest comparison of BMB against other AI coding tools. Every tool has trade-
 - Deep Claude Code integration (agents, skills, tmux orchestration)
 - Verification pipeline with blind cross-model review
 - No external API dependencies for core functionality
-- Simpler mental model: 12 steps, 9 agents, done
+- Simpler mental model: 12 steps, 10 agents, done
 - Built-in analytics and observability for pipeline health
 
 **Choose Composio when:** You need AI agents that interact with external services. Your workflow involves API calls, ticket management, or multi-service orchestration.
@@ -105,7 +105,7 @@ BMB is not the right tool for every situation. Here are its real costs:
 
 ### Token Cost
 
-BMB runs multiple Claude instances (9 agents) plus optional cross-model calls. A full `feature` pipeline costs 150k-400k tokens. A simple `research` run is 20k-60k. For comparison, a single Aider edit might cost 5k-20k tokens.
+BMB runs multiple Claude instances (10 agents) plus optional cross-model calls. A full `feature` pipeline costs 150k-400k tokens. A simple `research` run is 20k-60k. For comparison, a single Aider edit might cost 5k-20k tokens.
 
 **Mitigation:** Choose lighter recipes (`bugfix`, `infra`) for simpler tasks. The 3-layer compression system reduces waste, but multi-agent orchestration is inherently more expensive than single-agent.
 
@@ -131,7 +131,7 @@ A full 12-step pipeline takes 10-30 minutes depending on task complexity and tim
 
 ### Learning Curve
 
-Understanding 9 agents, 12 steps, and 6 recipes takes time. The handoff file system, worktree lifecycle, and blind verification protocol all have specific rules.
+Understanding 10 agents, 12 steps, and 6 recipes takes time. The handoff file system, worktree lifecycle, and blind verification protocol all have specific rules.
 
 **Mitigation:** Start with `research` recipe to learn brainstorming. Graduate to `bugfix` for a short pipeline. Use `feature` once comfortable.
 

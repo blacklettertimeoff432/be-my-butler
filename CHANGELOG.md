@@ -11,6 +11,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 - **Codex pre-flight check** — `_codex_preflight()` runs a 10-second smoke test before each cross-model call; failure records an incident and exits with code 5 instead of hanging.
 - **stderr separation** — `codex exec` stdout and stderr are captured to separate files; stderr is scanned for auth/error patterns and recorded to the incident spool.
 - **Exit code taxonomy** (cross-model-run.sh): 0=success, 1=missing/general, 2=timeout, 3=killed, 4=auth failure, 5=preflight failure, 6=stall detected.
+- **Haiku Monitor agent** (`agents/bmb-monitor.md`) — Lead-owned lightweight observer using Claude Haiku. Metadata-only stall detection (file mtime/size via `stat`/`wc -c`), process liveness checks, timeout warnings at 90%/100%. Blind phase filtering prevents test verdicts and coverage data from reaching Consultant during Steps 6–7. Optional dependency: Monitor failure never blocks the pipeline.
 
 ### Changed
 - **12-step pipeline** — Step 11 (Cleanup) split into Step 11 (Lead Retrospective) + Step 12 (Cleanup). All recipe step tables updated.

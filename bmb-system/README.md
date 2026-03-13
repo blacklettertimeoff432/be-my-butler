@@ -23,7 +23,7 @@ Multi-agent orchestration pipeline with cross-model verification, idea lifecycle
 | `/BMB-setup` | First-time onboarding + project configuration |
 | `/BMB-status` | Project/idea dashboard + nudge system |
 
-## Agents (9)
+## Agents (10)
 | Agent | Model | Role |
 |-------|-------|------|
 | bmb-consultant | sonnet | Persistent advisor (Korean) — hybrid sync, profile-based persona, mid-session idea capture |
@@ -35,6 +35,7 @@ Multi-agent orchestration pipeline with cross-model verification, idea lifecycle
 | bmb-simplifier | opus | Code cleanup |
 | bmb-writer | sonnet | Documentation |
 | bmb-analyst | sonnet | Retrospective analytics: Bird's Law severity, pattern_counts (bypassPermissions, read-only) |
+| bmb-monitor | haiku | Lead-owned lightweight observer: metadata-only stall detection, timeout warnings, blind phase filtering. Optional dependency. |
 
 ## Scripts
 | Script | Purpose |

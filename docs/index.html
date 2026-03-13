@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BMB — Be My Butler | Multi-Agent Orchestration for Claude Code</title>
-<meta name="description" content="12-step, 9-agent orchestration pipeline for Claude Code with cross-model blind verification, council debate, analytics, and worktree isolation.">
+<meta name="description" content="12-step, 10-agent orchestration pipeline for Claude Code with cross-model blind verification, council debate, analytics, and worktree isolation.">
 <meta property="og:title" content="BMB — Be My Butler">
-<meta property="og:description" content="9-agent, 12-step orchestration for Claude Code with cross-model blind verification and analytics">
+<meta property="og:description" content="10-agent, 12-step orchestration for Claude Code with cross-model blind verification and analytics">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://raw.githubusercontent.com/project820/be-my-butler/main/assets/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="BMB — Be My Butler">
-<meta name="twitter:description" content="9-agent, 12-step orchestration for Claude Code with cross-model blind verification and analytics">
+<meta name="twitter:description" content="10-agent, 12-step orchestration for Claude Code with cross-model blind verification and analytics">
 <link rel="alternate" hreflang="en" href="https://project820.github.io/be-my-butler/">
 <link rel="alternate" hreflang="ko" href="https://project820.github.io/be-my-butler/index.ko.html">
 <link rel="alternate" hreflang="ja" href="https://project820.github.io/be-my-butler/index.ja.html">
@@ -110,7 +110,7 @@
         <div class="stat-label">Pipeline Steps</div>
       </div>
       <div class="stat">
-        <div class="stat-value">9</div>
+        <div class="stat-value">10</div>
         <div class="stat-label">Agents</div>
       </div>
       <div class="stat">
@@ -230,7 +230,7 @@
     <div class="section-header fade-in">
       <div class="section-label">02 &mdash; Team</div>
       <h2>Agent Roster</h2>
-      <p class="section-desc">9 specialized agents, each with a clear role and strict boundaries. From brainstorming to production-ready code.</p>
+      <p class="section-desc">10 specialized agents, each with a clear role and strict boundaries. From brainstorming to production-ready code.</p>
     </div>
 
     <!-- Mermaid #1: System Architecture -->
@@ -365,6 +365,14 @@ graph TB
         </div>
         <div class="card-desc">Retrospective analysis: queries <code>analytics.db</code>, classifies events by Bird&rsquo;s Law severity (critical/warn/info), surfaces <code>pattern_counts</code> promotion candidates.</div>
         <div class="card-tags"><span class="tag green">bypassPermissions</span><span class="tag">read-only</span></div>
+      </div>
+      <div class="card" style="max-width:400px">
+        <div class="card-header">
+          <div class="card-icon" style="background:linear-gradient(135deg,#0ea5e9,#0369a1)">M</div>
+          <div><div class="card-title">Monitor</div><div class="card-model">Claude Haiku &bull; Lead-owned observer</div></div>
+        </div>
+        <div class="card-desc">Lightweight metadata observer: stall detection (file mtime/size via <code>stat</code>), process liveness checks, timeout warnings at 90%/100%. Blind phase filtering prevents test verdicts from reaching Consultant during Steps 6&ndash;7. Optional dependency &mdash; never blocks the pipeline.</div>
+        <div class="card-tags"><span class="tag">metadata-only</span><span class="tag amber">optional</span><span class="tag">blind-phase-safe</span></div>
       </div>
     </div>
   </div>

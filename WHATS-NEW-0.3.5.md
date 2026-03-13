@@ -73,6 +73,39 @@ Exit codes are now meaningful:
 - `5` — preflight failure (NEW)
 - `6` — stall detected (NEW)
 
+### Haiku Monitor Agent (`agents/bmb-monitor.md`)
+
+A new **Lead-owned lightweight observer** agent that watches agent metadata and reports state changes to Lead — without doing any work.
+
+| Property | Value |
+|----------|-------|
+| **Model** | Claude Haiku (lowest cost) |
+| **Tools** | Bash (metadata-only), SendMessage, Read (first 5 lines only) |
+| **Owner** | Lead — not a standalone worker |
+| **Purpose** | Stall detection, timeout warnings, process liveness checks |
+
+**Key design constraints:**
+- **Metadata-only**: Bash commands restricted to `test -f`, `stat`, `wc -c`, `ls -l`, `ps -p`. No `cat`, `grep`, or content reads.
+- **Stall detection**: Flags when a process is alive but file metadata has been unchanged for `idle_stall_sec` (default 180s).
+- **Blind phase filtering**: During testing/verification, Monitor reports lifecycle events to Consultant but **never transmits** test verdicts, failure details, or coverage numbers.
+- **Optional dependency**: Monitor failure never blocks the pipeline. If it crashes mid-run, Lead continues; existing polling handles timeouts.
+
+**Watch item registration** — Lead sends JSON schema to Monitor at agent spawn:
+```json
+{
+  "agent": "tester-claude",
+  "step": "6",
+  "result_path": ".bmb/handoffs/test-result-claude.md",
+  "timeout_sec": 1200,
+  "blind_phase": true
+}
+```
+
+Monitor reports state changes in this format:
+```
+[MONITOR] agent=tester-claude step=6 state=stalled idle_sec=185 cpu_pct=0.1 ts=14:22
+```
+
 ---
 
 ## Files Changed
@@ -83,6 +116,7 @@ Exit codes are now meaningful:
 | `scripts/cross-model-run.sh` | `timeout` fallback, preflight check, stderr separation, refined exit codes |
 | `config/defaults.json` | `retrospective.min_learnings_per_session: 1`, `cross_model.preflight_timeout: 10` |
 | `agents/bmb-analyst.md` | Lead-relay summary section added to report template |
+| `agents/bmb-monitor.md` | **New** — Haiku Monitor agent (Lead-owned observer, metadata-only stall detection) |
 
 ---
 

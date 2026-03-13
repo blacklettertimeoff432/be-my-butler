@@ -2,7 +2,7 @@
 
 ## System Overview
 
-BMB (Be My Butler) is a 12-step multi-agent orchestration pipeline for Claude Code. A single **Lead** agent spawns and coordinates 9 specialized agents through tmux panes, communicating exclusively via files in the `.bmb/` directory.
+BMB (Be My Butler) is a 12-step multi-agent orchestration pipeline for Claude Code. A single **Lead** agent spawns and coordinates 10 specialized agents through tmux panes, communicating exclusively via files in the `.bmb/` directory.
 
 ```mermaid
 graph TB
@@ -20,6 +20,7 @@ graph TB
         Simplifier
         Writer
         Analyst
+        Monitor["Monitor (Lead-owned, optional)"]
     end
 
     subgraph ".bmb/ (handoff directory)"
@@ -442,6 +443,8 @@ BMB never blocks on optional dependencies. If a capability is unavailable, the p
 | NDJSON incident spool missing (v0.3.4) | Skip incident import; log warning | Loses off-session incident history |
 | Context7 unavailable | Agents fall back to memorized API knowledge | Risk of stale-SDK errors |
 | Telegram not configured | Skip notifications | No user alerts |
+| Monitor fails to start | Lead logs warning, continues without monitoring | Existing polling handles timeouts |
+| Monitor crashes mid-pipeline | Lead continues; polling covers timeouts | None — Monitor is optional |
 
 All degradation events are logged to `session-log.md` with timestamp.
 
@@ -464,7 +467,7 @@ Each page contains **7 vertical-scroll cards** with `scroll-snap-type: y proximi
 
 | # | Card | Content |
 |---|------|---------|
-| 1 | Cover | BMB logo, tagline, 9 Agents / 12 Steps / Cross-Model tags |
+| 1 | Cover | BMB logo, tagline, 10 Agents / 12 Steps / Cross-Model tags |
 | 2 | Problem | 2×2 grid: Self-verification bias, Context explosion, Edge cases, Design tunnel vision |
 | 3 | Pipeline | 4-phase flow (PLAN/BUILD/VERIFY/REFINE) with `/BMB` command prompt |
 | 4 | Architecture | Simplified SVG: handoff flow, blind wall, worktree isolation |
