@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   started_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%S','now','localtime')),
   ended_at TEXT,
   status TEXT NOT NULL DEFAULT 'running',
-  total_steps INTEGER NOT NULL DEFAULT 11,
+  total_steps INTEGER NOT NULL DEFAULT 12,
   steps_completed INTEGER NOT NULL DEFAULT 0
 );
 

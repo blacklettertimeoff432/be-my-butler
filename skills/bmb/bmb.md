@@ -1,6 +1,6 @@
 ---
 name: bmb
-description: "BMB full A-to-Z pipeline — 11 steps with cross-model council, blind verification, simplification, and session continuity."
+description: "BMB full A-to-Z pipeline — 12 steps with cross-model council, blind verification, simplification, and session continuity."
 ---
 
 # /BMB
@@ -88,7 +88,7 @@ Send at: pipeline start, user approval needed, pipeline end only.
 
 ---
 
-## THE 11-STEP PIPELINE
+## THE 12-STEP PIPELINE
 
 ### Step 1: Setup
 ```bash
@@ -742,10 +742,50 @@ fi
 bmb_analytics_step_end "10.5" "analyst"
 ```
 
-### Step 11: Cleanup + Session Prep
+### Step 11: Lead Retrospective
 
 ```bash
-bmb_analytics_step_start "11" "cleanup"
+bmb_analytics_step_start "11" "retrospective"
+```
+
+**11.1. bmb_learn calls** (minimum 1 per session):
+```bash
+bmb_learn PRAISE "11" "Pipeline completed successfully" "Current approach works"
+# If no mistakes recorded in this session, PRAISE is the minimum call
+# If mistakes occurred, call bmb_learn MISTAKE for each notable one
+```
+
+**11.2. Analyst report relay** (mandatory if report exists):
+```bash
+if [ -f ".bmb/handoffs/analyst-report.md" ]; then
+  # Read the analyst summary (compressed)
+  # Present the "Lead 전달용 요약" section to user
+  # Include: incident counts, top pattern, promotion candidates
+fi
+```
+
+**11.3. Promotion check** (scan learnings.md for 2+ repeats):
+```bash
+# Scan .bmb/learnings.md for rules appearing 2+ times
+# Same rule text or very similar → propose promotion
+# "이 규칙이 반복되고 있습니다. CLAUDE.md Learnings로 승격할까요?"
+# Never auto-edit, always ask user
+```
+
+**11.4. Auto-memory save** (optional):
+Save notable session learnings to auto-memory if applicable.
+
+**11.5. Context check**:
+If context is tight: 11.1 + 11.3 are minimum requirements. Note "회고 미완" in carry-forward.
+
+```bash
+bmb_analytics_step_end "11" "retrospective"
+```
+
+### Step 12: Cleanup + Session Prep
+
+```bash
+bmb_analytics_step_start "12" "cleanup"
 ```
 
 1. Update consultant feed with final summary
@@ -804,9 +844,8 @@ bmb_analytics_step_start "11" "cleanup"
    EOF
    ```
 
-9b. **Generate carry-forward.md (atomic: temp+mv):**
+9. **Generate carry-forward.md (atomic: temp+mv):**
     ```bash
-    # Use echo for safe shell vars, quoted heredoc for user-derived content
     CF_TIMESTAMP=$(date '+%Y-%m-%d %H:%M KST')
     CF_PROJECT=$(pwd)
     {
@@ -838,16 +877,17 @@ bmb_analytics_step_start "11" "cleanup"
     mv .bmb/sessions/${SESSION_ID}/carry-forward.md.tmp .bmb/sessions/${SESSION_ID}/carry-forward.md
     ```
 
-9. Record pipeline success: `bmb_learn PRAISE "11" "Pipeline completed successfully" "Current approach works"`
-
-10. **CLAUDE.md promotion check**: scan `.bmb/learnings.md` for rules appearing 2+ times (same `rule` text or very similar). If found, propose to user: "이 규칙이 반복되고 있습니다. CLAUDE.md Learnings로 승격할까요?" — never auto-edit, always ask.
+10. **Worktree cleanup**:
+    ```bash
+    git worktree list | grep '.bmb/worktrees' | awk '{print $1}' | xargs -I{} git worktree remove {} 2>/dev/null || true
+    ```
 
 11. Present final summary to user
 12. Send Telegram: pipeline completion
 13. End analytics session:
     ```bash
-    bmb_analytics_step_end "11" "cleanup"
-    bmb_analytics_end_session "complete" 11
+    bmb_analytics_step_end "12" "cleanup"
+    bmb_analytics_end_session "complete" 12
     ```
 
 14. Ask user: "계속할까요, 아니면 여기서 마칠까요?"
@@ -864,12 +904,12 @@ After each step completes, Lead checks own context usage:
 
 | Type | Pipeline |
 |------|----------|
-| feature | consultant + brainstorm(in-process) → architect(council) → executor + frontend → tester(cross) → verifier(cross) → simplifier → writer → analyst |
-| bugfix | consultant + brainstorm(in-process) → executor → tester(cross) → verifier(cross) → writer → analyst |
-| refactor | consultant + brainstorm(in-process) → architect(council) → executor + frontend → verifier(cross) → simplifier → writer → analyst |
-| research | consultant + brainstorm(in-process) only |
-| review | consultant + brainstorm(in-process) → verifier(review mode) |
-| infra | consultant + brainstorm(in-process) → executor → verifier(cross) → writer → analyst |
+| feature | consultant + brainstorm(in-process) → architect(council) → executor + frontend → tester(cross) → verifier(cross) → simplifier → writer → analyst → retrospective → cleanup |
+| bugfix | consultant + brainstorm(in-process) → executor → tester(cross) → verifier(cross) → writer → analyst → retrospective → cleanup |
+| refactor | consultant + brainstorm(in-process) → architect(council) → executor + frontend → verifier(cross) → simplifier → writer → analyst → retrospective → cleanup |
+| research | consultant + brainstorm(in-process) → retrospective → cleanup |
+| review | consultant + brainstorm(in-process) → verifier(review mode) → retrospective → cleanup |
+| infra | consultant + brainstorm(in-process) → executor → verifier(cross) → writer → analyst → retrospective → cleanup |
 
 ## 3-TIER REPORTING HIERARCHY
 
@@ -936,13 +976,16 @@ Lead fills these fixed JSON one-liner templates when sending lifecycle events vi
 
 When cross-model invocation fails, follow recovery-first policy:
 
-### Exit Code Classification (from cross-model-run.sh v0.3.4)
+### Exit Code Classification (from cross-model-run.sh v0.3.5)
 | Exit Code | Meaning | Action |
 |-----------|---------|--------|
 | `0` | Success | Continue normally |
-| `1` | CLI not found / general failure (DEGRADED) | Degrade to Claude-only |
+| `1` | General failure (DEGRADED) | Degrade to Claude-only |
 | `2` | Timeout (DEGRADED) | Recovery already attempted by script; degrade |
 | `3` | Process hung/killed (DEGRADED) | Recovery already attempted; degrade |
+| `4` | Auth failure (401/unauthorized) | Record incident; degrade |
+| `5` | Preflight failure (CLI broken) | Record incident; degrade |
+| `6` | Stall detected (no output for N sec) | Record incident; degrade |
 
 ### Recovery-First Flow
 1. **cross-model-run.sh** automatically attempts one bounded restart on timeout

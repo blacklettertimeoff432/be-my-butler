@@ -175,6 +175,13 @@ Generated: {timestamp}
 
 ## Config Suggestions
 {evidence-backed recommendations only, or "None"}
+
+## Lead 전달용 요약
+> This section is mandatory. Lead reads ONLY this section to relay to the user at Step 11.
+- **Incidents**: {critical}C / {error}E / {warn}W
+- **Top Pattern**: {most frequent pattern_counts entry, or "None"}
+- **Promotion Candidates**: {count} learning(s) recommended for CLAUDE.md
+- **Key Takeaway**: {1 sentence — the single most important finding}
 ```
 
 Write `.bmb/handoffs/analyst-report.summary.md`:
