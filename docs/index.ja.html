@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BMB — Be My Butler | Claude Code マルチエージェントオーケストレーション</title>
-<meta name="description" content="Claude Code向け11.5ステップ・9エージェント・オーケストレーションパイプライン。クロスモデル・ブラインド検証、Council討論、分析、Worktree分離を搭載。">
+<meta name="description" content="Claude Code向け12ステップ・10エージェント・オーケストレーションパイプライン。クロスモデル・ブラインド検証、Council討論、分析、Worktree分離を搭載。">
 <meta property="og:title" content="BMB — Be My Butler">
-<meta property="og:description" content="9エージェント・11.5ステップのClaude Code向けオーケストレーション。クロスモデル・ブラインド検証と分析機能搭載">
+<meta property="og:description" content="10エージェント・12ステップのClaude Code向けオーケストレーション。クロスモデル・ブラインド検証と分析機能搭載">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://raw.githubusercontent.com/project820/be-my-butler/main/assets/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="BMB — Be My Butler">
-<meta name="twitter:description" content="9エージェント・11.5ステップのClaude Code向けオーケストレーション。クロスモデル・ブラインド検証と分析機能搭載">
+<meta name="twitter:description" content="10エージェント・12ステップのClaude Code向けオーケストレーション。クロスモデル・ブラインド検証と分析機能搭載">
 <link rel="alternate" hreflang="en" href="https://project820.github.io/be-my-butler/">
 <link rel="alternate" hreflang="ko" href="https://project820.github.io/be-my-butler/index.ko.html">
 <link rel="alternate" hreflang="ja" href="https://project820.github.io/be-my-butler/index.ja.html">
@@ -79,8 +79,8 @@
       マルチエージェント・オーケストレーションシステム
     </div>
     <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;">
-      <span style="display:inline-block;padding:4px 14px;border-radius:20px;background:var(--gradient-blue);color:#fff;font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;">v0.2.0</span>
-      <a href="https://github.com/project820/be-my-butler/blob/main/WHATS-NEW-0.2.md" style="display:inline-flex;align-items:center;gap:4px;padding:4px 14px;border-radius:20px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:var(--green);font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(34,197,94,0.2)'" onmouseout="this.style.background='rgba(34,197,94,0.12)'">v0.2 の新機能</a>
+      <span style="display:inline-block;padding:4px 14px;border-radius:20px;background:var(--gradient-blue);color:#fff;font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;">v0.3.5</span>
+      <a href="https://github.com/project820/be-my-butler/blob/main/WHATS-NEW-0.3.5.md" style="display:inline-flex;align-items:center;gap:4px;padding:4px 14px;border-radius:20px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:var(--green);font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.background='rgba(34,197,94,0.2)'" onmouseout="this.style.background='rgba(34,197,94,0.12)'">v0.3.5 の新機能</a>
     </div>
     <h1>
       <span class="gradient-text">BMB</span><br>
@@ -106,11 +106,11 @@
     </div>
     <div class="hero-stats">
       <div class="stat">
-        <div class="stat-value">11.5</div>
+        <div class="stat-value">12</div>
         <div class="stat-label">パイプラインステップ</div>
       </div>
       <div class="stat">
-        <div class="stat-value">9</div>
+        <div class="stat-value">10</div>
         <div class="stat-label">エージェント</div>
       </div>
       <div class="stat">
@@ -230,7 +230,7 @@
     <div class="section-header fade-in">
       <div class="section-label">02 &mdash; チーム</div>
       <h2>エージェント一覧</h2>
-      <p class="section-desc">9つの専門エージェント、それぞれ明確な役割と厳格な境界を持ちます。ブレインストーミングからプロダクションレディなコードまで。</p>
+      <p class="section-desc">10の専門エージェント、それぞれ明確な役割と厳格な境界を持ちます。ブレインストーミングからプロダクションレディなコードまで。</p>
     </div>
 
     <!-- Mermaid #1: System Architecture -->
@@ -238,15 +238,16 @@
       <pre class="mermaid">
 graph TB
   User["👤 User"]
-  Lead["🎯 Lead<br/><i>Opus · Orchestrator</i>"]
-  Consultant["💬 Consultant<br/><i>Sonnet · Persistent</i>"]
-  Architect["📐 Architect<br/><i>Opus · Council</i>"]
-  Executor["⚙️ Executor<br/><i>Opus · Backend</i>"]
-  Frontend["🎨 Frontend<br/><i>Opus · UI</i>"]
-  Tester["🧪 Tester<br/><i>Opus · Blind</i>"]
-  Verifier["✅ Verifier<br/><i>Opus · Blind</i>"]
-  Simplifier["🧹 Simplifier<br/><i>Opus · Cleanup</i>"]
-  Writer["📝 Writer<br/><i>Sonnet · Docs</i>"]
+  Lead["🎯 Lead<br/><i>Claude · Orchestrator</i>"]
+  Consultant["💬 Consultant<br/><i>Claude · Persistent</i>"]
+  Architect["📐 Architect<br/><i>Claude · Council</i>"]
+  Executor["⚙️ Executor<br/><i>Claude · Backend</i>"]
+  Frontend["🎨 Frontend<br/><i>Claude · UI</i>"]
+  Tester["🧪 Tester<br/><i>Claude · Blind</i>"]
+  Verifier["✅ Verifier<br/><i>Codex / Gemini / Claude · Blind</i>"]
+  Simplifier["🧹 Simplifier<br/><i>Claude · Cleanup</i>"]
+  Monitor["👁️ Monitor<br/><i>Haiku · Observer</i>"]
+  Analyst["📊 Analyst<br/><i>Claude · Analytics</i>"]
   BMB[".bmb/<br/><i>Handoffs · Artifacts</i>"]
   CrossModel["🌐 Cross-Model<br/><i>Codex / Gemini</i>"]
 
@@ -261,7 +262,8 @@ graph TB
   Lead -->|"verify request"| Verifier
   Verifier -.->|"blind wall"| CrossModel
   Lead -->|"simplify"| Simplifier
-  Lead -->|"write docs"| Writer
+  Lead -->|"observe"| Monitor
+  Lead -->|"analyze"| Analyst
   Architect -->|"writes"| BMB
   Executor -->|"writes"| BMB
   Frontend -->|"writes"| BMB
@@ -275,11 +277,16 @@ graph TB
   classDef user fill:#0a1628,stroke:#3b82f6,stroke-width:2px,color:#60a5fa
   classDef storage fill:#111827,stroke:#1e3a5f,stroke-width:2px,color:#8494a7
 
+  classDef haiku fill:#0a1520,stroke:#06b6d4,stroke-width:2px,color:#22d3ee
+  classDef analyst fill:#0a2010,stroke:#22c55e,stroke-width:2px,color:#4ade80
+
   class Lead,Architect,Executor,Frontend,Tester,Verifier,Simplifier opus
-  class Consultant,Writer sonnet
+  class Consultant sonnet
   class CrossModel cross
   class User user
   class BMB storage
+  class Monitor haiku
+  class Analyst analyst
       </pre>
     </div>
 
@@ -287,7 +294,7 @@ graph TB
       <div class="card">
         <div class="card-header">
           <div class="card-icon lead">L</div>
-          <div><div class="card-title">Lead</div><div class="card-model">Claude Opus &bull; フルパイプライン</div></div>
+          <div><div class="card-title">Lead</div><div class="card-model">Claude &bull; フルパイプライン</div></div>
         </div>
         <div class="card-desc">オーケストレーション、意思決定、中継、ブレインストーミング。<code>.bmb/</code>のみ読み取り。コードは一切書かない。薄い指揮者。</div>
         <div class="card-tags"><span class="tag">オーケストレーター</span><span class="tag cyan">プロセス内ブレスト</span></div>
@@ -295,7 +302,7 @@ graph TB
       <div class="card">
         <div class="card-header">
           <div class="card-icon sonnet">C</div>
-          <div><div class="card-title">Consultant</div><div class="card-model">Claude Sonnet &bull; ステップ2&ndash;11</div></div>
+          <div><div class="card-title">Consultant</div><div class="card-model">Claude &bull; ステップ2&ndash;11</div></div>
         </div>
         <div class="card-desc">コーディネーターとしての役割: 完全な状況認識、ゼロの命令権限。デュアルチャネル（フィードファイル + SendMessage）。ブラインドフェーズ中にライフサイクルイベントを受信、照合後にフルポストブリーフィングを取得。</div>
         <div class="card-tags"><span class="tag green">デュアルチャネル</span><span class="tag">永続</span><span class="tag cyan">ポストブリーフィング</span></div>
@@ -303,7 +310,7 @@ graph TB
       <div class="card">
         <div class="card-header">
           <div class="card-icon opus">A</div>
-          <div><div class="card-title">Architect</div><div class="card-model">Claude Opus &bull; ステップ4</div></div>
+          <div><div class="card-title">Architect</div><div class="card-model">Claude &bull; ステップ4</div></div>
         </div>
         <div class="card-desc">設計 + クロスモデルCouncil討論。Claude vs Codex/Geminiの2〜4ラウンド。plan-to-exec.mdを作成。設計前にContext7でライブライブラリドキュメントを参照。</div>
         <div class="card-tags"><span class="tag purple">Council討論</span><span class="tag amber">クロスモデル</span><span class="tag cyan">Context7</span></div>
@@ -311,7 +318,7 @@ graph TB
       <div class="card">
         <div class="card-header">
           <div class="card-icon opus">E</div>
-          <div><div class="card-title">Executor</div><div class="card-model">Claude Opus &bull; ステップ5</div></div>
+          <div><div class="card-title">Executor</div><div class="card-model">Claude &bull; ステップ6</div></div>
         </div>
         <div class="card-desc">バックエンド実装。分離されたgit worktreeで作業。コード記述前にContext7で最新ライブラリドキュメントを参照。worktreeスコープ内のみでコミット。</div>
         <div class="card-tags"><span class="tag">Worktree分離</span><span class="tag cyan">Context7</span></div>
@@ -319,7 +326,7 @@ graph TB
       <div class="card">
         <div class="card-header">
           <div class="card-icon opus">F</div>
-          <div><div class="card-title">Frontend</div><div class="card-model">Claude Opus &bull; ステップ5</div></div>
+          <div><div class="card-title">Frontend</div><div class="card-model">Claude &bull; ステップ7</div></div>
         </div>
         <div class="card-desc">React/Next.js + shadcn/Tailwindスペシャリスト。Executorとは別のworktree。Context7で最新フレームワークドキュメントを参照。フロントエンドスコープが検出された場合のみ生成。</div>
         <div class="card-tags"><span class="tag">Worktree分離</span><span class="tag">条件付き</span><span class="tag cyan">Context7</span></div>
@@ -327,7 +334,7 @@ graph TB
       <div class="card">
         <div class="card-header">
           <div class="card-icon opus">T</div>
-          <div><div class="card-title">Tester</div><div class="card-model">Claude Opus &bull; ステップ6</div></div>
+          <div><div class="card-title">Tester</div><div class="card-model">Claude &bull; ステップ8</div></div>
         </div>
         <div class="card-desc">ユニットテスト、統合テスト、エッジケーステスト。分岐フレーミングによるブラインド・クロスモデルテストの一部。</div>
         <div class="card-tags"><span class="tag purple">ブラインド</span><span class="tag">Worktree分離</span></div>
@@ -335,7 +342,7 @@ graph TB
       <div class="card">
         <div class="card-header">
           <div class="card-icon opus">V</div>
-          <div><div class="card-title">Verifier</div><div class="card-model">Claude Opus &bull; ステップ7</div></div>
+          <div><div class="card-title">Verifier</div><div class="card-model">Codex / Gemini / Claude &bull; ステップ9</div></div>
         </div>
         <div class="card-desc">エビデンスベースの検証 + コードレビューを1エージェントで。ブラインド・クロスモデル検証。</div>
         <div class="card-tags"><span class="tag purple">ブラインド</span><span class="tag cyan">レビュー + 検証</span></div>
@@ -343,7 +350,7 @@ graph TB
       <div class="card">
         <div class="card-header">
           <div class="card-icon opus">S</div>
-          <div><div class="card-title">Simplifier</div><div class="card-model">Claude Opus &bull; ステップ9</div></div>
+          <div><div class="card-title">Simplifier</div><div class="card-model">Claude &bull; ステップ10</div></div>
         </div>
         <div class="card-desc">作業後のコードクリーンアップ。変更後にビルド＋テストで再検証が必須。失敗時は自動リバート。</div>
         <div class="card-tags"><span class="tag green">再検証</span></div>
@@ -352,15 +359,16 @@ graph TB
     <div style="margin-top:16px;display:flex;gap:16px;flex-wrap:wrap">
       <div class="card" style="max-width:400px">
         <div class="card-header">
-          <div class="card-icon sonnet">W</div>
-          <div><div class="card-title">Writer</div><div class="card-model">Claude Sonnet &bull; ステップ10</div></div>
+          <div class="card-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">M</div>
+          <div><div class="card-title">Monitor</div><div class="card-model">Claude Haiku &bull; Lead-owned observer</div></div>
         </div>
-        <div class="card-desc">ドキュメント更新 + クロスバリデーション。ドキュメントにはSonnetで十分。</div>
+        <div class="card-desc">メタデータのみの軽量オブザーバー。スタル検出、タイムアウト警告、ブラインドフェーズフィルタリング。オプション依存 &mdash; パイプラインをブロックしません。</div>
+        <div class="card-tags"><span class="tag">軽量</span><span class="tag cyan">メタデータのみ</span></div>
       </div>
       <div class="card" style="max-width:400px">
         <div class="card-header">
           <div class="card-icon" style="background:linear-gradient(135deg,#22c55e,#16a34a)">A</div>
-          <div><div class="card-title">Analyst</div><div class="card-model">Claude Sonnet &bull; ステップ10.5</div></div>
+          <div><div class="card-title">Analyst</div><div class="card-model">Claude &bull; ステップ10.5</div></div>
         </div>
         <div class="card-desc">振り返り分析: <code>analytics.db</code>をクエリし、Bird&rsquo;s Law重大度（critical/warn/info）でイベントを分類、<code>pattern_counts</code>のプロモーション候補を特定。</div>
         <div class="card-tags"><span class="tag green">bypassPermissions</span><span class="tag">読み取り専用</span></div>
@@ -374,7 +382,7 @@ graph TB
   <div class="container">
     <div class="section-header fade-in">
       <div class="section-label">03 &mdash; フロー</div>
-      <h2>11.5ステップ・パイプライン</h2>
+      <h2>12ステップ・パイプライン</h2>
       <p class="section-desc">ユーザーの意図からプロダクションレディなコードまで。各ステップをクリックして詳細を確認。</p>
     </div>
     <div class="accordion fade-in">
@@ -384,7 +392,7 @@ graph TB
           <div class="step-num">1</div>
           <div class="accordion-summary">
             <div class="accordion-title-wrap">
-              <div class="step-title">セットアップ</div>
+              <div class="step-title">セッション準備</div>
               <div class="step-agents">
                 <span class="agent-pill lead-pill">Lead</span>
               </div>
@@ -427,28 +435,7 @@ graph TB
           <div class="step-num">3</div>
           <div class="accordion-summary">
             <div class="accordion-title-wrap">
-              <div class="step-title">ユーザー承認</div>
-              <div class="step-agents">
-                <span class="agent-pill lead-pill">Lead</span>
-              </div>
-            </div>
-            <div class="accordion-chevron">&#9662;</div>
-          </div>
-        </div>
-        <div class="accordion-body">
-          <div class="accordion-detail">
-            圧縮ブリーフィングを提示。<strong>YES</strong> &rarr; <code>bmb_learn PRAISE</code>。<strong>MODIFY</strong> &rarr; <code>bmb_learn CORRECTION</code> + 更新。<strong>NO</strong> &rarr; キャンセル。
-            <div class="step-badges"><span class="tag cyan">自動学習</span><span class="tag amber">3分岐</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- Step 4 -->
-      <div class="accordion-item">
-        <div class="accordion-header" onclick="toggleAccordion(this)">
-          <div class="step-num">4</div>
-          <div class="accordion-summary">
-            <div class="accordion-title-wrap">
-              <div class="step-title">アーキテクチャCouncil</div>
+              <div class="step-title">Council討論</div>
               <div class="step-agents">
                 <span class="agent-pill opus">Architect</span>
                 <span class="agent-pill cross-pill">Cross-Model</span>
@@ -459,8 +446,29 @@ graph TB
         </div>
         <div class="accordion-body">
           <div class="accordion-detail">
-            実行用git worktreeを作成。Claude-Codex/GeminiのCouncil討論（2〜4ラウンド）のためArchitectを生成。plan-to-exec.mdを作成。<em>bugfix/infraレシピではスキップ。</em>
+            Claude-Codex/GeminiのCouncil討論（2〜4ラウンド）のためArchitectを生成。<em>bugfix/infraレシピではスキップ。</em>
             <div class="step-badges"><span class="tag purple">Council討論</span><span class="tag amber">クロスモデル</span><span class="tag">スキップ: bugfix, infra</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Step 4 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <div class="step-num">4</div>
+          <div class="accordion-summary">
+            <div class="accordion-title-wrap">
+              <div class="step-title">アーキテクチャ設計</div>
+              <div class="step-agents">
+                <span class="agent-pill opus">Architect</span>
+              </div>
+            </div>
+            <div class="accordion-chevron">&#9662;</div>
+          </div>
+        </div>
+        <div class="accordion-body">
+          <div class="accordion-detail">
+            Council合意に基づきアーキテクチャ設計を確定。設計前にContext7でライブライブラリドキュメントを参照。
+            <div class="step-badges"><span class="tag purple">設計</span><span class="tag cyan">Context7</span></div>
           </div>
         </div>
       </div>
@@ -470,29 +478,7 @@ graph TB
           <div class="step-num">5</div>
           <div class="accordion-summary">
             <div class="accordion-title-wrap">
-              <div class="step-title">実行</div>
-              <div class="step-agents">
-                <span class="agent-pill opus">Executor</span>
-                <span class="agent-pill opus">Frontend</span>
-              </div>
-            </div>
-            <div class="accordion-chevron">&#9662;</div>
-          </div>
-        </div>
-        <div class="accordion-body">
-          <div class="accordion-detail">
-            Executor + Frontend（条件付き）を<strong>別々のworktree</strong>で生成。git競合ゼロの並列実行。Frontendはスコープが検出された場合のみ（React、Vue、Svelteなど）。
-            <div class="step-badges"><span class="tag">Worktree分離</span><span class="tag">並列</span><span class="tag">条件付きフロントエンド</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- Step 5.5 -->
-      <div class="accordion-item">
-        <div class="accordion-header" onclick="toggleAccordion(this)">
-          <div class="step-num">5.5</div>
-          <div class="accordion-summary">
-            <div class="accordion-title-wrap">
-              <div class="step-title">Worktreeマージ</div>
+              <div class="step-title">計画 + ユーザー承認</div>
               <div class="step-agents">
                 <span class="agent-pill lead-pill">Lead</span>
               </div>
@@ -502,8 +488,8 @@ graph TB
         </div>
         <div class="accordion-body">
           <div class="accordion-detail">
-            worktreeでコミット &rarr; mainにマージ &rarr; worktree削除。コンフリクト発生時は<code>bmb_learn MISTAKE</code> + ユーザーにエスカレーション。
-            <div class="step-badges"><span class="tag cyan">自動学習</span></div>
+            plan-to-exec.mdを作成。圧縮ブリーフィングを提示。<strong>YES</strong> &rarr; <code>bmb_learn PRAISE</code>。<strong>MODIFY</strong> &rarr; <code>bmb_learn CORRECTION</code> + 更新。<strong>NO</strong> &rarr; キャンセル。
+            <div class="step-badges"><span class="tag cyan">自動学習</span><span class="tag amber">3分岐</span></div>
           </div>
         </div>
       </div>
@@ -511,6 +497,48 @@ graph TB
       <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion(this)">
           <div class="step-num">6</div>
+          <div class="accordion-summary">
+            <div class="accordion-title-wrap">
+              <div class="step-title">バックエンド実行</div>
+              <div class="step-agents">
+                <span class="agent-pill opus">Executor</span>
+              </div>
+            </div>
+            <div class="accordion-chevron">&#9662;</div>
+          </div>
+        </div>
+        <div class="accordion-body">
+          <div class="accordion-detail">
+            Executorを<strong>分離されたworktree</strong>で生成。Context7で最新ライブラリドキュメントを参照。worktreeスコープ内のみでコミット。
+            <div class="step-badges"><span class="tag">Worktree分離</span><span class="tag cyan">Context7</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Step 7 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <div class="step-num">7</div>
+          <div class="accordion-summary">
+            <div class="accordion-title-wrap">
+              <div class="step-title">フロントエンド実行</div>
+              <div class="step-agents">
+                <span class="agent-pill opus">Frontend</span>
+              </div>
+            </div>
+            <div class="accordion-chevron">&#9662;</div>
+          </div>
+        </div>
+        <div class="accordion-body">
+          <div class="accordion-detail">
+            Frontend（条件付き）をExecutorとは<strong>別のworktree</strong>で生成。Frontendはスコープが検出された場合のみ（React、Vue、Svelteなど）。Context7で最新フレームワークドキュメントを参照。
+            <div class="step-badges"><span class="tag">Worktree分離</span><span class="tag">条件付き</span><span class="tag cyan">Context7</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Step 8 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <div class="step-num">8</div>
           <div class="accordion-summary">
             <div class="accordion-title-wrap">
               <div class="step-title">クロスモデルテスト（ブラインド）</div>
@@ -529,10 +557,10 @@ graph TB
           </div>
         </div>
       </div>
-      <!-- Step 7 -->
+      <!-- Step 9 -->
       <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion(this)">
-          <div class="step-num">7</div>
+          <div class="step-num">9</div>
           <div class="accordion-summary">
             <div class="accordion-title-wrap">
               <div class="step-title">クロスモデル検証（ブラインド）</div>
@@ -546,36 +574,15 @@ graph TB
         </div>
         <div class="accordion-body">
           <div class="accordion-detail">
-            ステップ6と同じブラインド分岐パターン。Consultantの分離: 照合まで結果は共有されません。
-            <div class="step-badges"><span class="tag purple">ブラインドウォール</span><span class="tag amber">分岐フレーミング</span></div>
+            ステップ8と同じブラインド分岐パターン。照合 + 5カテゴリ障害分類。FAILで<code>bmb_learn MISTAKE</code> + 分類されたループバックをトリガー。
+            <div class="step-badges"><span class="tag purple">ブラインドウォール</span><span class="tag amber">分岐フレーミング</span><span class="tag cyan">自動学習</span></div>
           </div>
         </div>
       </div>
-      <!-- Step 8 -->
+      <!-- Step 10 -->
       <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion(this)">
-          <div class="step-num">8</div>
-          <div class="accordion-summary">
-            <div class="accordion-title-wrap">
-              <div class="step-title">照合</div>
-              <div class="step-agents">
-                <span class="agent-pill lead-pill">Lead</span>
-              </div>
-            </div>
-            <div class="accordion-chevron">&#9662;</div>
-          </div>
-        </div>
-        <div class="accordion-body">
-          <div class="accordion-detail">
-            構造化サマリーを読み取り。5カテゴリ障害分類: <strong>IMPL</strong>&rarr;ステップ5、<strong>ARCH</strong>&rarr;ステップ4、<strong>REQ</strong>&rarr;ステップ2、<strong>ENV</strong>&rarr;ステップ1、<strong>TEST</strong>&rarr;ステップ6。FAILで<code>bmb_learn MISTAKE</code> + 分類されたループバックをトリガー。
-            <div class="step-badges"><span class="tag cyan">自動学習</span><span class="tag">障害分類</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- Step 9 -->
-      <div class="accordion-item">
-        <div class="accordion-header" onclick="toggleAccordion(this)">
-          <div class="step-num">9</div>
+          <div class="step-num">10</div>
           <div class="accordion-summary">
             <div class="accordion-title-wrap">
               <div class="step-title">簡素化 + 再検証</div>
@@ -590,26 +597,6 @@ graph TB
           <div class="accordion-detail">
             最小限の安全な改善。ビルド + テストの合格が必須（再検証）。失敗時は<code>bmb_learn MISTAKE</code> + リバート + オリジナルで続行。
             <div class="step-badges"><span class="tag green">再検証</span><span class="tag cyan">自動学習</span></div>
-          </div>
-        </div>
-      </div>
-      <!-- Step 10 -->
-      <div class="accordion-item">
-        <div class="accordion-header" onclick="toggleAccordion(this)">
-          <div class="step-num">10</div>
-          <div class="accordion-summary">
-            <div class="accordion-title-wrap">
-              <div class="step-title">ドキュメント更新</div>
-              <div class="step-agents">
-                <span class="agent-pill sonnet">Writer</span>
-              </div>
-            </div>
-            <div class="accordion-chevron">&#9662;</div>
-          </div>
-        </div>
-        <div class="accordion-body">
-          <div class="accordion-detail">
-            Writerがドキュメントを更新し、無効な参照を削除し、変更されたすべてのファイル間の一貫性をクロスバリデーション。
           </div>
         </div>
       </div>
@@ -640,6 +627,27 @@ graph TB
           <div class="step-num">11</div>
           <div class="accordion-summary">
             <div class="accordion-title-wrap">
+              <div class="step-title">振り返り</div>
+              <div class="step-agents">
+                <span class="agent-pill lead-pill">Lead</span>
+              </div>
+            </div>
+            <div class="accordion-chevron">&#9662;</div>
+          </div>
+        </div>
+        <div class="accordion-body">
+          <div class="accordion-detail">
+            成功時に<code>bmb_learn PRAISE</code>。再発回数2以上をチェック &rarr; CLAUDE.mdプロモーションを提案。セッションの振り返りを実施。
+            <div class="step-badges"><span class="tag cyan">自動学習</span><span class="tag green">CLAUDE.mdプロモーション</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Step 12 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <div class="step-num">12</div>
+          <div class="accordion-summary">
+            <div class="accordion-title-wrap">
               <div class="step-title">クリーンアップ + セッション準備</div>
               <div class="step-agents">
                 <span class="agent-pill lead-pill">Lead</span>
@@ -650,8 +658,8 @@ graph TB
         </div>
         <div class="accordion-body">
           <div class="accordion-detail">
-            成功時に<code>bmb_learn PRAISE</code>。再発回数2以上をチェック &rarr; CLAUDE.mdプロモーションを提案。Gitコミット/プッシュ。FTS5インデックス作成。次のセッション用にsession-prep.mdを生成。
-            <div class="step-badges"><span class="tag cyan">自動学習</span><span class="tag">セッション継続性</span><span class="tag green">CLAUDE.mdプロモーション</span></div>
+            Gitコミット/プッシュ。FTS5インデックス作成。次のセッション用にsession-prep.mdを生成。Worktreeクリーンアップ。
+            <div class="step-badges"><span class="tag">セッション継続性</span><span class="tag cyan">FTS5</span></div>
           </div>
         </div>
       </div>
@@ -662,47 +670,47 @@ graph TB
     <div class="mermaid-wrap fade-in">
       <pre class="mermaid">
 flowchart TD
-  S1["1. Setup<br/><i>tmux, session, learnings</i>"]
+  S1["1. Session Prep<br/><i>tmux, session, learnings</i>"]
   S2["2. Brainstorm + Consultant<br/><i>min 2 rounds</i>"]
-  S3{"3. User Approval"}
-  S4["4. Architecture Council<br/><i>2-4 debate rounds</i>"]
-  S5["5. Execution<br/><i>worktree-isolated</i>"]
-  S55["5.5 Merge Worktrees"]
-  S6["6. Blind Testing<br/><i>divergent framing</i>"]
-  S7["7. Blind Verification<br/><i>divergent framing</i>"]
-  S8{"8. Reconciliation"}
-  S9["9. Simplify + Re-verify"]
-  S10["10. Docs Update"]
+  S3["3. Council Debate<br/><i>2-4 rounds</i>"]
+  S4["4. Architecture Design"]
+  S5{"5. Plan + Approval"}
+  S6["6. Backend Execution<br/><i>worktree-isolated</i>"]
+  S7["7. Frontend Execution<br/><i>conditional</i>"]
+  S8["8. Blind Testing<br/><i>divergent framing</i>"]
+  S9["9. Blind Verification<br/><i>divergent framing</i>"]
+  S10["10. Simplify + Re-verify"]
   S105["10.5 Retrospective Analysis<br/><i>Bird's Law severity</i>"]
-  S11["11. Cleanup + Session Prep"]
+  S11["11. Retrospective"]
+  S12["12. Cleanup + Session Prep"]
 
   S1 --> S2
   S2 --> S3
-  S3 -->|"YES"| S4
-  S3 -->|"MODIFY"| S2
-  S3 -->|"NO"| CANCEL["Cancel"]
-  S4 -->|"skip: bugfix/infra"| S5
+  S3 -->|"skip: bugfix/infra"| S5
+  S3 --> S4
   S4 --> S5
+  S5 -->|"YES"| S6
+  S5 -->|"MODIFY"| S2
+  S5 -->|"NO"| CANCEL["Cancel"]
 
   subgraph parallel ["Parallel Worktrees"]
     direction LR
     EX["Executor"]
     FE["Frontend<br/><i>if detected</i>"]
   end
-  S5 --> parallel
-  parallel --> S55
-  S55 --> S6
-  S6 --> S7
-  S7 --> S8
-  S8 -->|"PASS"| S9
-  S8 -->|"IMPL fail"| S5
-  S8 -->|"ARCH fail"| S4
-  S8 -->|"REQ fail"| S2
-  S8 -->|"ENV fail"| S1
-  S8 -->|"TEST fail"| S6
-  S9 --> S10
+  S6 --> parallel
+  S7 --> parallel
+  parallel --> S8
+  S8 --> S9
+  S9 -->|"PASS"| S10
+  S9 -->|"IMPL fail"| S6
+  S9 -->|"ARCH fail"| S4
+  S9 -->|"REQ fail"| S2
+  S9 -->|"ENV fail"| S1
+  S9 -->|"TEST fail"| S8
   S10 --> S105
   S105 --> S11
+  S11 --> S12
 
   classDef decision fill:#1a1500,stroke:#d97706,color:#f59e0b
   classDef cancel fill:#2a0a0a,stroke:#ef4444,color:#ef4444
@@ -710,9 +718,9 @@ flowchart TD
   classDef parallel fill:#0a1628,stroke:#3b82f6,color:#60a5fa
   classDef analyst fill:#0a2010,stroke:#22c55e,color:#4ade80
 
-  class S3,S8 decision
+  class S5 decision
   class CANCEL cancel
-  class S1,S2,S4,S5,S55,S6,S7,S9,S10,S11 step
+  class S1,S2,S3,S4,S6,S7,S8,S9,S10,S11,S12 step
   class EX,FE parallel
   class S105 analyst
       </pre>
@@ -744,7 +752,7 @@ flowchart LR
   Verify["✅ Verifier<br/><i>blind</i>"]
   Recon["⚖️ Reconcile"]
   Simp["🧹 Simplifier"]
-  Write["📝 Writer"]
+  Analyst["📊 Analyst"]
   Output["✨ Output"]
 
   User -->|"intent"| Lead
@@ -758,14 +766,14 @@ flowchart LR
   Test -->|"test-summary"| Recon
   Verify -->|"verify-summary"| Recon
   Recon -->|"PASS"| Simp
-  Simp -->|"cleaned"| Write
-  Write --> Output
+  Simp -->|"cleaned"| Analyst
+  Analyst --> Output
 
   classDef artifact fill:#1a2234,stroke:#3b82f6,color:#60a5fa
   classDef agent fill:#111827,stroke:#1e3a5f,color:#e8edf5
 
   class Brief,Plan artifact
-  class User,Lead,Arch,ExFe,Merge,Test,Verify,Recon,Simp,Write,Output agent
+  class User,Lead,Arch,ExFe,Merge,Test,Verify,Recon,Simp,Analyst,Output agent
       </pre>
     </div>
 
@@ -934,7 +942,7 @@ gantt
     <div class="mermaid-wrap fade-in">
       <pre class="mermaid">
 sequenceDiagram
-  participant A as Architect<br/>(Claude Opus)
+  participant A as Architect<br/>(Claude)
   participant F as Council Files<br/>(.bmb/council/)
   participant X as Cross-Model<br/>(Codex / Gemini)
 
@@ -1177,9 +1185,9 @@ sequenceDiagram
             <div class="card-model">フルパイプライン</div>
           </div>
         </div>
-        <div class="card-desc">完全な11.5ステップA-to-Zパイプライン。クロスモデルCouncil、ブラインド検証、分析、簡素化、セッション継続性。重要な機能やバグ修正に使用。</div>
+        <div class="card-desc">完全な12ステップA-to-Zパイプライン。クロスモデルCouncil、ブラインド検証、分析、簡素化、セッション継続性。重要な機能やバグ修正に使用。</div>
         <div class="card-tags">
-          <span class="tag">11.5ステップ</span>
+          <span class="tag">12ステップ</span>
           <span class="tag purple">クロスモデル</span>
           <span class="tag green">Worktree</span>
           <span class="tag amber">ブラインド検証</span>

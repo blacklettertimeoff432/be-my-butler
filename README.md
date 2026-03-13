@@ -240,7 +240,7 @@ Run `bmb doctor` after installation to verify all dependencies.
 
 Explore the full pipeline visually:
 
-**[View Interactive Docs →](https://be-my-butler.github.io/be-my-butler/)**
+**[View Interactive Docs →](https://project820.github.io/be-my-butler/)**
 
 Mobile-optimized summary pages (7-card vertical scroll, 4 locales):
 
