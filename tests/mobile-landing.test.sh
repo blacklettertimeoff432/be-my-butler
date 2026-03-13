@@ -23,6 +23,7 @@ assert_not_contains() {
   local file="$1" pattern="$2" msg="$3"
   if grep -q "$pattern" "$file" 2>/dev/null; then fail "$msg"; else pass "$msg"; fi
 }
+# shellcheck disable=SC2317,SC2329
 assert_count() {
   local file="$1" pattern="$2" expected="$3" msg="$4"
   local actual
