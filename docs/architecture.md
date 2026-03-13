@@ -2,7 +2,7 @@
 
 ## System Overview
 
-BMB (Be My Butler) is an 11.5-step multi-agent orchestration pipeline for Claude Code. A single **Lead** agent spawns and coordinates 9 specialized agents through tmux panes, communicating exclusively via files in the `.bmb/` directory.
+BMB (Be My Butler) is a 12-step multi-agent orchestration pipeline for Claude Code. A single **Lead** agent spawns and coordinates 9 specialized agents through tmux panes, communicating exclusively via files in the `.bmb/` directory.
 
 ```mermaid
 graph TB
@@ -109,7 +109,7 @@ graph TB
 
 ---
 
-## 11.5-Step Pipeline Flow
+## 12-Step Pipeline Flow
 
 ```mermaid
 flowchart TD
@@ -125,14 +125,15 @@ flowchart TD
     S9["9. Simplification + Re-verify<br/>Remove dead code, re-run tests"]
     S10["10. Docs Update<br/>Writer updates documentation"]
     S105["10.5 Retrospective Analysis<br/>Analyst: Bird's Law severity, pattern_counts"]
-    S11["11. Cleanup + Session Prep<br/>Commit, push, index, prepare next session"]
+    S11["11. Lead Retrospective<br/>bmb_learn, analyst relay, promotion check"]
+    S12["12. Cleanup + Session Prep<br/>Commit, push, index, prepare next session"]
 
     S1 --> S2 --> S3
     S3 -->|YES| S4
     S3 -->|NO| END["Pipeline cancelled"]
     S3 -->|MODIFY| S2
     S4 --> S5 --> S55 --> S6 --> S7 --> S8
-    S8 -->|PASS| S9 --> S10 --> S105 --> S11
+    S8 -->|PASS| S9 --> S10 --> S105 --> S11 --> S12
     S8 -->|FAIL:IMPL| S5
     S8 -->|FAIL:ARCH| S4
     S8 -->|FAIL:REQ| S2
@@ -420,7 +421,7 @@ Learning types:
 - `CORRECTION` -- user corrected the pipeline's output
 - `PRAISE` -- something went well; reinforces current approach
 
-At Step 11, the Lead scans `learnings.md` for rules appearing 2+ times and proposes promotion to `CLAUDE.md`.
+At Step 11 (Retrospective), the Lead scans `learnings.md` for rules appearing 2+ times and proposes promotion to `CLAUDE.md`.
 
 ---
 
@@ -481,7 +482,7 @@ Each page contains **7 vertical-scroll cards** with `scroll-snap-type: y proximi
 
 ## Session Continuity
 
-At Step 11, the Lead generates `.bmb/sessions/{session_id}/session-prep.md`:
+At Step 12 (Cleanup), the Lead generates `.bmb/sessions/{session_id}/session-prep.md`:
 
 ```markdown
 # BMB Session Prep

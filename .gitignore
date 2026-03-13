@@ -20,7 +20,7 @@
 !agents/
 !agents/bmb-*.md
 
-# Skills (BMB only — exclude third-party skills)
+# Skills (BMB only)
 !skills/
 !skills/bmb/
 !skills/bmb/**
@@ -33,21 +33,26 @@
 !skills/bmb-refactoring/
 !skills/bmb-refactoring/**
 
-
-# BMB system (scripts, config)
+# BMB system (scripts, config, bin, plans)
 !bmb-system/
 !bmb-system/**
-bmb-system/.bmb/
 
-# Source, tests, docs, examples
-!src/
-!src/**
+# Tests, docs
 !tests/
 !tests/**
 !docs/
 !docs/**
-!examples/
-!examples/**
+
+# ─── Explicitly IGNORE (runtime, temp, secrets) ───
+
+# BMB runtime data (NEVER commit)
+.bmb/
+bmb-system/runtime/
+bmb-system/.bmb/
+
+# Temp/partial files from codex shim
+*.partial
+*.tmp.*
 
 # OS artifacts
 .DS_Store
@@ -62,7 +67,7 @@ __pycache__/
 *.swo
 *~
 
-# Environment
+# Environment / secrets
 .env
 .env.*
 !.env.example

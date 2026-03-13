@@ -11,7 +11,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents](https://img.shields.io/badge/agents-9-orange.svg)](#the-9-agents)
-[![Steps](https://img.shields.io/badge/pipeline_steps-11.5-teal.svg)](#the-115-step-pipeline)
+[![Steps](https://img.shields.io/badge/pipeline_steps-12-teal.svg)](#the-12-step-pipeline)
 [![What's New](https://img.shields.io/badge/what's_new-v0.3.4-green.svg)](WHATS-NEW-0.3.md)
 
 <!-- TODO: Replace with asciinema recording -->
@@ -55,13 +55,13 @@ bmb doctor
 /BMB
 ```
 
-That's it. BMB registers its agents, skills, and scripts into your Claude Code environment. Type `/BMB` in any project to start the full 11.5-step pipeline.
+That's it. BMB registers its agents, skills, and scripts into your Claude Code environment. Type `/BMB` in any project to start the full 12-step pipeline.
 
 > **Optional for cross-model verification:** Install [Codex CLI](https://github.com/openai/codex) and/or [Gemini CLI](https://github.com/google-gemini/gemini-cli) to unlock blind verification with a second model.
 
 ---
 
-## The 11.5-Step Pipeline
+## The 12-Step Pipeline
 
 Every `/BMB` run walks through these stages. Steps adapt based on the selected **recipe** — some steps are skipped or shortened for lighter workflows.
 
@@ -77,7 +77,8 @@ flowchart TD
     H --> I["⑨ Verify"]
     I --> J["⑩ Simplify"]
     J --> K["⑩.⑤ Analyst"]
-    K --> L["⑪ Learn"]
+    K --> L["⑪ Retrospective"]
+    L --> M["⑫ Cleanup"]
 
     style A fill:#1a1a2e,stroke:#e94560,color:#fff
     style B fill:#1a1a2e,stroke:#e94560,color:#fff
@@ -90,7 +91,8 @@ flowchart TD
     style I fill:#533483,stroke:#e94560,color:#fff
     style J fill:#533483,stroke:#e94560,color:#fff
     style K fill:#1a3a2e,stroke:#22c55e,color:#fff
-    style L fill:#533483,stroke:#e94560,color:#fff
+    style L fill:#1a3a2e,stroke:#22c55e,color:#fff
+    style M fill:#533483,stroke:#e94560,color:#fff
 ```
 
 | Step | Agent | What Happens |
@@ -106,7 +108,8 @@ flowchart TD
 | **9** | Verifier | **Verify** — cross-model blind review with divergent spec framing |
 | **10** | Simplifier | **Simplify** — removes dead code, flattens unnecessary abstractions |
 | **10.5** | Analyst | **Retrospective Analysis** — queries `analytics.db`, classifies events by Bird's Law severity, identifies promotion candidates from `pattern_counts` |
-| **11** | Lead | **Learn** — extracts lessons into the 3-tier auto-learning system |
+| **11** | Lead | **Retrospective** — bmb_learn calls, analyst report relay, promotion check |
+| **12** | Lead | **Cleanup** — commit, push, session-prep, carry-forward, worktree cleanup |
 
 ---
 
@@ -177,12 +180,12 @@ Architect, Executor, and Frontend agents query **live library documentation** vi
 
 | Recipe | Steps Used | Best For |
 |---|---|---|
-| `feature` | All 11 | New features, large changes |
-| `bugfix` | 1 → 5 → 6 → 8 → 9 → 10 → 11 | Bug investigation and fix |
-| `refactor` | 1 → 4 → 5 → 6 → 8 → 9 → 10 → 11 | Code restructuring |
-| `research` | 1 → 2 → 3 → 11 | Exploration, spikes, design decisions |
-| `review` | 1 → 9 → 11 | Code review only |
-| `infra` | 1 → 4 → 5 → 6 → 8 → 9 → 11 | CI/CD, tooling, config changes |
+| `feature` | All 12 | New features, large changes |
+| `bugfix` | 1 → 5 → 6 → 8 → 9 → 10 → 11 → 12 | Bug investigation and fix |
+| `refactor` | 1 → 4 → 5 → 6 → 8 → 9 → 10 → 11 → 12 | Code restructuring |
+| `research` | 1 → 2 → 3 → 11 → 12 | Exploration, spikes, design decisions |
+| `review` | 1 → 9 → 11 → 12 | Code review only |
+| `infra` | 1 → 4 → 5 → 6 → 8 → 9 → 11 → 12 | CI/CD, tooling, config changes |
 
 ---
 
@@ -190,7 +193,7 @@ Architect, Executor, and Frontend agents query **live library documentation** vi
 
 | Command | Description |
 |---|---|
-| `/BMB` | Full 11.5-step pipeline — select a recipe interactively |
+| `/BMB` | Full 12-step pipeline — select a recipe interactively |
 | `/BMB-brainstorm` | Brainstorm + Council only — explore ideas without executing |
 | `/BMB-refactoring` | Refactor recipe shortcut — skip brainstorm, go straight to architecture |
 | `/BMB-setup` | First-time project setup — generates `session-prep.md` and config |
