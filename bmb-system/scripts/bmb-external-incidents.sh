@@ -154,10 +154,13 @@ except:
     det=$(printf '%s' "$det" | sed "s/'/''/g")
     src=$(printf '%s' "$src" | sed "s/'/''/g")
     ek=$(printf '%s' "$ek" | sed "s/'/''/g")
+    ts=$(printf '%s' "$ts" | sed "s/'/''/g")
+    ts_ep=$(printf '%s' "$ts_ep" | sed "s/'/''/g")
+    ec=$(printf '%s' "$ec" | sed "s/'/''/g")
 
     sqlite3 "$db_path" \
       "INSERT OR IGNORE INTO external_incidents (session_id, ts, ts_epoch, event_key, severity, exit_code, source, detail)
-       VALUES ('$session_id', '$ts', $ts_ep, '$ek', '$sev', $ec, '$src', '$det');" 2>/dev/null || true
+       VALUES ('$session_id', '$ts', '$ts_ep', '$ek', '$sev', '$ec', '$src', '$det');" 2>/dev/null || true
     count=$((count + 1))
   done < "$BMB_SPOOL_FILE"
 

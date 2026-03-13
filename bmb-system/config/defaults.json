@@ -27,6 +27,7 @@
     "cross_model_reverify": 600,
     "recovery_restart": 300,
     "targeted_reverify": 600,
+    "cross_model_verify": 900,
     "_note": "Seconds. claude_agent applies to executor/tester/verifier/simplifier. codex_review: adaptive 600-1800s based on plan size. Profile timeouts override cross_model for specific profiles."
   },
   "recovery": {

@@ -144,26 +144,35 @@ def main():
                 bufsize=0,
             )
 
-            # Stream stdout to temp file (not RAM)
-            while True:
-                chunk = proc.stdout.read(4096)
-                if not chunk:
-                    break
-                output_file.write(chunk.decode("utf-8", errors="replace"))
+            # Stream stdout to temp file with non-blocking reads for stall detection
+            import select
+            while proc.poll() is None:
+                ready, _, _ = select.select(
+                    [proc.stdout], [], [], STALL_CHECK_INTERVAL
+                )
+                if ready:
+                    chunk = proc.stdout.read(4096)
+                    if not chunk:
+                        break
+                    output_file.write(chunk.decode("utf-8", errors="replace"))
+                    output_file.flush()
+                    last_output_time = time.time()
+                else:
+                    # No data within interval — check for stall
+                    idle_sec = time.time() - last_output_time
+                    if idle_sec > STALL_IDLE_THRESHOLD:
+                        cpu = get_cpu_percent(proc.pid)
+                        detail = f"idle_sec={int(idle_sec)}"
+                        if cpu >= 0:
+                            detail += f" cpu_pct={cpu}"
+                        if cpu >= 0 and cpu < CPU_IDLE_THRESHOLD:
+                            detail += " cpu_idle=true"
+                        record_incident("codex_exec_stalled", detail)
+            # Drain remaining stdout after process exits
+            remainder = proc.stdout.read()
+            if remainder:
+                output_file.write(remainder.decode("utf-8", errors="replace"))
                 output_file.flush()
-                last_output_time = time.time()
-
-                # Stall detection (metadata-first: output gap + optional CPU)
-                idle_sec = time.time() - last_output_time
-                if idle_sec > STALL_IDLE_THRESHOLD and proc.poll() is None:
-                    cpu = get_cpu_percent(proc.pid)
-                    # CPU is auxiliary only — stall requires no-output as primary
-                    detail = f"idle_sec={int(idle_sec)}"
-                    if cpu >= 0:
-                        detail += f" cpu_pct={cpu}"
-                    if cpu >= 0 and cpu < CPU_IDLE_THRESHOLD:
-                        detail += " cpu_idle=true"
-                    record_incident("codex_exec_stalled", detail)
 
             proc.wait()
             exit_code = proc.returncode
