@@ -179,11 +179,12 @@ bmb_incidents_rotate() {
   cutoff_epoch=$(( $(date +%s) - (retention * 86400) ))
 
   # Split: recent lines stay, old lines go to archive
-  local archive_file="${BMB_SPOOL_ARCHIVE}/incidents-$(date +%Y%m%d-%H%M%S).ndjson"
+  local archive_file
+  archive_file="${BMB_SPOOL_ARCHIVE}/incidents-$(date +%Y%m%d-%H%M%S).ndjson"
   local tmp_recent="${BMB_SPOOL_FILE}.tmp"
 
-  > "$tmp_recent"
-  > "$archive_file"
+  : > "$tmp_recent"
+  : > "$archive_file"
 
   while IFS= read -r line; do
     local epoch

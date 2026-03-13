@@ -187,9 +187,8 @@ case "$PROVIDER" in
         echo "RECOVERY: attempting one bounded restart..." >&2
 
         # Use recovery_restart timeout (shorter)
-        local recovery_timeout="${TIMEOUT}"
+        recovery_timeout="${TIMEOUT}"
         if [ -f "$CONFIG_FILE" ] && command -v python3 &>/dev/null; then
-          local _rt
           _rt=$(_BMB_CFG="$CONFIG_FILE" python3 -c "
 import json, os
 try:
