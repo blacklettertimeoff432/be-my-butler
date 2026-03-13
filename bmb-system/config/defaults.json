@@ -18,7 +18,36 @@
     "cross_model": 3600,
     "writer": 600,
     "codex_review": 600,
-    "_note": "Seconds. claude_agent applies to executor/tester/verifier/simplifier. codex_review: adaptive 600-1800s based on plan size."
+    "council": 600,
+    "verify": 600,
+    "review": 600,
+    "test": 1200,
+    "exec-assist": 3600,
+    "cross_model_retest": 600,
+    "cross_model_reverify": 600,
+    "recovery_restart": 300,
+    "targeted_reverify": 600,
+    "_note": "Seconds. claude_agent applies to executor/tester/verifier/simplifier. codex_review: adaptive 600-1800s based on plan size. Profile timeouts override cross_model for specific profiles."
+  },
+  "recovery": {
+    "cross_model_restart_attempts": 1,
+    "_note": "Max bounded restart attempts before graceful degradation."
+  },
+  "monitor": {
+    "enabled": true,
+    "interval": 30,
+    "model": "haiku",
+    "idle_stall_sec": 180,
+    "consultant_reporting": "filtered",
+    "_note": "Lightweight Lead-owned monitor. Metadata-only, no pane, Haiku-class."
+  },
+  "incidents": {
+    "spool_dir": "~/.claude/bmb-system/runtime",
+    "retention_days": 7,
+    "max_spool_size_mb": 50,
+    "external_incident_lookback_sec": 86400,
+    "external_incident_retention_days": 30,
+    "_note": "External incident spool config. NDJSON spool for off-session dependency failures."
   },
   "consultant": {
     "style": "default",

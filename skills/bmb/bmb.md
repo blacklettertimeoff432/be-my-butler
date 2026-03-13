@@ -117,6 +117,14 @@ source "$HOME/.claude/bmb-system/scripts/bmb-ideas.sh"
 # Source analytics helpers
 source "$HOME/.claude/bmb-system/scripts/bmb-analytics.sh"
 bmb_analytics_init "$SESSION_ID"
+
+# v0.3.4: Import external incidents from NDJSON spool
+source "$HOME/.claude/bmb-system/scripts/bmb-external-incidents.sh"
+IMPORTED_INCIDENTS=$(bmb_analytics_import_incidents 86400) || IMPORTED_INCIDENTS=0
+if [ "${IMPORTED_INCIDENTS:-0}" -gt 0 ]; then
+  echo "| $(date +%H:%M) | 1 | Imported ${IMPORTED_INCIDENTS} external incident(s) from spool |" >> .bmb/session-log.md
+fi
+
 bmb_analytics_step_start "1" "setup"
 
 # Load past learnings — inject MISTAKE entries as Known Pitfalls
@@ -895,6 +903,11 @@ Lead fills these fixed JSON one-liner templates when sending lifecycle events vi
 {"event":"loop_back","step":"8","target":"N","reason":"TEXT","ts":"HH:MM","severity":"warn","tier":"1"}
 {"event":"blind_phase_complete","step":"8","test_result":"PASS|FAIL","verify_result":"PASS|FAIL","ts":"HH:MM"}
 {"event":"analyst_summary","step":"10.5","report":"PATH","ts":"HH:MM"}
+{"event":"monitor_stall","step":"N","agent":"NAME","idle_sec":N,"cpu_pct":N,"ts":"HH:MM"}
+{"event":"monitor_timeout_imminent","step":"N","agent":"NAME","elapsed_sec":N,"timeout_sec":N,"ts":"HH:MM"}
+{"event":"external_incidents_imported","step":"1","count":N,"ts":"HH:MM"}
+{"event":"recovery_attempt","step":"N","agent":"NAME","type":"restart|auth_retry","outcome":"success|failed","ts":"HH:MM"}
+{"event":"cross_model_degraded","step":"N","agent":"NAME","exit_code":N,"ts":"HH:MM","severity":"warn","tier":"1"}
 ```
 
 **Field rules**: No prose outside JSON. Stable field names. Omit irrelevant fields, no placeholders.
@@ -919,7 +932,32 @@ Lead fills these fixed JSON one-liner templates when sending lifecycle events vi
 - Before Steps 6-8: Generate compressed test/verify reports
 - Step 11: Archive session-log
 
-## GRACEFUL DEGRADATION
+## GRACEFUL DEGRADATION (v0.3.4: Recovery-First)
+
+When cross-model invocation fails, follow recovery-first policy:
+
+### Exit Code Classification (from cross-model-run.sh v0.3.4)
+| Exit Code | Meaning | Action |
+|-----------|---------|--------|
+| `0` | Success | Continue normally |
+| `1` | CLI not found / general failure (DEGRADED) | Degrade to Claude-only |
+| `2` | Timeout (DEGRADED) | Recovery already attempted by script; degrade |
+| `3` | Process hung/killed (DEGRADED) | Recovery already attempted; degrade |
+
+### Recovery-First Flow
+1. **cross-model-run.sh** automatically attempts one bounded restart on timeout
+2. If restart succeeds → continue with result
+3. If restart fails → exit code 2 or 3 returned to Lead
+4. Lead records recovery outcome:
+   ```bash
+   # On exit 2/3 (recovery was attempted inside cross-model-run.sh)
+   bmb_analytics_recovery_marker "$STEP" "$AGENT" "restart" "failed" "exit=$EXIT_CODE profile=$PROFILE"
+   bmb_analytics_event "$STEP" "$AGENT" "degradation" "warn" "cross_model_degraded" "Degraded to Claude-only after recovery failure"
+   echo "| $(date +%H:%M) | $STEP | DEGRADED: cross-model failed (exit=$EXIT_CODE), proceeding Claude-only |" >> .bmb/session-log.md
+   ```
+5. Only THEN fall back to Claude-only mode
+
+### Fallback Behavior
 If cross-model CLI is unavailable at any point:
 - Council debates: Solo design (Claude only)
 - Cross-model testing: Claude-only testing

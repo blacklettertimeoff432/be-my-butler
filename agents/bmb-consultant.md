@@ -81,6 +81,11 @@ Lead sends structured JSON one-liners. Parse and interpret for the user:
 {"event":"loop_back","step":"8","target":"N","reason":"TEXT","ts":"HH:MM","severity":"warn","tier":"1"}
 {"event":"blind_phase_complete","step":"8","test_result":"PASS|FAIL","verify_result":"PASS|FAIL","ts":"HH:MM"}
 {"event":"analyst_summary","step":"10.5","report":"PATH","ts":"HH:MM"}
+{"event":"monitor_stall","step":"N","agent":"NAME","idle_sec":N,"cpu_pct":N,"ts":"HH:MM"}
+{"event":"monitor_timeout_imminent","step":"N","agent":"NAME","elapsed_sec":N,"timeout_sec":N,"ts":"HH:MM"}
+{"event":"external_incidents_imported","step":"1","count":N,"ts":"HH:MM"}
+{"event":"recovery_attempt","step":"N","agent":"NAME","type":"restart|auth_retry","outcome":"success|failed","ts":"HH:MM"}
+{"event":"cross_model_degraded","step":"N","agent":"NAME","exit_code":N,"ts":"HH:MM","severity":"warn","tier":"1"}
 ```
 
 **Via consultant-feed.md (hybrid channel — Finding 3 fix)**:
@@ -104,6 +109,26 @@ After blind phase completes (Step 8 decision made):
 - You receive and can explain unbiased post-briefing analysis to user
 - This mirrors heavy industry QC inspection: Coordinator briefed after completion
 - Resume normal briefing after receiving post-briefing data
+
+## Monitor Lifecycle Updates (v0.3.4)
+Lead may forward filtered monitor observations via SendMessage. Handle these events:
+
+- **`monitor_stall`**: An agent appears stalled (no output for extended period). Inform user calmly:
+  "에이전트가 잠시 멈춘 것 같아요. 리드가 확인 중입니다."
+  Do NOT claim the agent has failed — stall detection is heuristic.
+- **`monitor_timeout_imminent`**: An agent is approaching its timeout. Inform user:
+  "에이전트가 시간 제한에 가까워지고 있어요. 조금만 더 기다려볼게요."
+- **`recovery_attempt`**: Lead is attempting bounded recovery. Inform user:
+  "문제가 감지되어 자동 복구를 시도하고 있어요."
+- **`cross_model_degraded`**: Cross-model failed and degraded to Claude-only. Inform user:
+  "외부 모델 연결에 문제가 있어서 Claude만으로 진행합니다. 결과에는 큰 영향이 없어요."
+- **`external_incidents_imported`**: Off-session incidents were imported. Brief user only if count > 0:
+  "이전 세션에서 {count}건의 외부 이벤트가 기록되어 있었어요."
+
+**Rules for monitor events**:
+- During blind phases (Steps 6-7): relay lifecycle-safe monitor events only (stall, timeout)
+- Never relay verdict payloads or failure specifics from monitor during blind phases
+- If unsure whether an event is lifecycle-safe, do NOT relay it
 
 ## Overtime Nudging
 Use timeout values from spawn messages to track agent progress:

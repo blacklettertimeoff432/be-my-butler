@@ -73,6 +73,34 @@ sqlite3 -header -column .bmb/analytics/analytics.db \
    ORDER BY id;"
 ```
 
+### 3.5. External Dependency Failures & Recovery (v0.3.4)
+Query the `external_incidents` table for dependency failure patterns:
+```bash
+# Check if external_incidents table exists
+HAS_EXT=$(sqlite3 .bmb/analytics/analytics.db "SELECT name FROM sqlite_master WHERE type='table' AND name='external_incidents';" 2>/dev/null)
+if [ -n "$HAS_EXT" ]; then
+  # External incidents for this session
+  sqlite3 -header -column .bmb/analytics/analytics.db \
+    "SELECT event_key, severity, source, detail, ts
+     FROM external_incidents WHERE session_id = '${SESSION_ID}'
+     ORDER BY ts_epoch;"
+
+  # Recovery attempts and outcomes
+  sqlite3 -header -column .bmb/analytics/analytics.db \
+    "SELECT step, agent, event_key, detail, created_at
+     FROM events WHERE session_id = '${SESSION_ID}'
+       AND event_type = 'recovery_attempt'
+     ORDER BY id;"
+
+  # Dependency failure patterns across sessions
+  sqlite3 -header -column .bmb/analytics/analytics.db \
+    "SELECT event_key, count, severity_max, first_seen, last_seen
+     FROM pattern_counts
+     WHERE category = 'dependency' OR event_key LIKE 'codex_%' OR event_key LIKE 'recovery_%'
+     ORDER BY count DESC LIMIT 10;"
+fi
+```
+
 ### 4. Cross-Session Patterns (only if 3+ sessions exist)
 ```bash
 SESSION_COUNT=$(sqlite3 .bmb/analytics/analytics.db "SELECT COUNT(*) FROM sessions;")
@@ -132,6 +160,12 @@ Generated: {timestamp}
 
 ## Recurring Patterns
 {from pattern_counts table — top items by count}
+
+## External Dependency Failures & Recovery (v0.3.4)
+{from external_incidents table — incidents imported from NDJSON spool}
+{from recovery_attempt events — bounded restarts attempted and their outcomes}
+{summary: dependency failure rate, recovery success rate, recurring provider issues}
+{if no external incidents: "No external dependency incidents recorded."}
 
 ## Learning Promotion Candidates
 {learnings that appear 2+ times in pattern_counts, recommend for CLAUDE.md}

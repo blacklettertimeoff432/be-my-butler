@@ -276,6 +276,8 @@ HEREDOC_EOF
 REVIEW_FILE=".bmb/sessions/${SESSION_ID}/plan-review.md"
 
 # Adaptive timeout based on plan size (Review recommendation)
+# v0.3.4: cross-model-run.sh now applies profile-based defaults internally,
+# but brainstorm still sets adaptive timeout for the review profile.
 PLAN_LINES=$(wc -l < ".bmb/sessions/${SESSION_ID}/plan-draft.md" 2>/dev/null || echo 0)
 AUTO_TIMEOUT=600
 [ "$PLAN_LINES" -ge 200 ] && AUTO_TIMEOUT=900
@@ -321,6 +323,21 @@ done
 wait $REVIEW_PID 2>/dev/null
 
 # Early completion: proceed immediately without idle wait
+```
+
+Check exit code for v0.3.4 degradation handling:
+```bash
+REVIEW_EXIT=$?
+if [ $REVIEW_EXIT -eq 2 ] || [ $REVIEW_EXIT -eq 3 ]; then
+  # Cross-model timed out or was killed — recovery was attempted by cross-model-run.sh
+  echo "$(date +%H:%M)|Lead|CONTEXT|Cross-model review degraded (exit=$REVIEW_EXIT)" > .bmb/sessions/${SESSION_ID}/log-pipe
+  echo "### $(date +%H:%M) Cross-model 리뷰 타임아웃 — Claude-only로 계속" >> .bmb/consultant-feed.md
+  # Inform user and proceed without cross-model review
+  # Tell user: "Codex 리뷰가 시간 내에 완료되지 않았어요. 원안으로 진행할게요."
+elif [ $REVIEW_EXIT -eq 1 ]; then
+  echo "$(date +%H:%M)|Lead|CONTEXT|Cross-model CLI unavailable (exit=1)" > .bmb/sessions/${SESSION_ID}/log-pipe
+  # Tell user: "Cross-model CLI를 사용할 수 없어서 리뷰를 건너뜁니다."
+fi
 ```
 
 Read `.bmb/sessions/${SESSION_ID}/plan-review.md` and present to user:

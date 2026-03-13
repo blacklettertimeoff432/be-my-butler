@@ -6,13 +6,13 @@
 
 **Multi-agent orchestration for Claude Code with cross-model blind verification**
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.3.4-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents](https://img.shields.io/badge/agents-9-orange.svg)](#the-9-agents)
 [![Steps](https://img.shields.io/badge/pipeline_steps-11.5-teal.svg)](#the-115-step-pipeline)
-[![What's New](https://img.shields.io/badge/what's_new-v0.3-green.svg)](WHATS-NEW-0.3.md)
+[![What's New](https://img.shields.io/badge/what's_new-v0.3.4-green.svg)](WHATS-NEW-0.3.md)
 
 <!-- TODO: Replace with asciinema recording -->
 <!-- [![asciicast](assets/demo.svg)](https://asciinema.org/a/TODO) -->
@@ -276,6 +276,24 @@ Mobile-optimized summary pages (7-card vertical scroll, 4 locales):
     ├── carry-forward.md     # Atomic session continuity
     └── plan-review.md       # Cross-model plan critique
 ```
+
+---
+
+## What's New in v0.3.4
+
+**External Dependency Incidents + Monitor Recovery** -- operational reliability for cross-model pipelines.
+
+| Capability | Description |
+|---|---|
+| **Automatic Incident Capture** | Codex auth failures, stalls, timeouts, and crashes are recorded automatically to an NDJSON spool -- no manual logging required |
+| **Recovery-First Bounded Restart** | On cross-model failure, the pipeline attempts one bounded restart before graceful degradation to Claude-only mode |
+| **Profile-Based Timeouts** | Each cross-model profile (`council`, `verify`, `review`, `test`, `exec-assist`) gets its own default timeout instead of sharing a single 3600s value |
+| **Codex Shim** | A transparent Python wrapper (`bin/codex`) intercepts real codex calls, detects stalls via metadata-first heuristics (output gap + optional CPU), and streams large output to disk |
+| **External Incident Import** | Off-session dependency failures are imported into session analytics at pipeline start, bridging the gap between terminal crashes and retrospective reports |
+| **Monitor Subagent Support** | Configuration for a lightweight Lead-owned monitor (Haiku-class, metadata-only, no pane) that detects stalls and timeout thresholds |
+| **Analyst Dependency Reports** | The Analyst (Step 10.5) now queries external incidents and recovery patterns for richer retrospectives |
+
+Key constraints: no daemon, single-writer SQLite (Lead only), CPU as auxiliary signal only, Consultant blind-phase isolation preserved.
 
 ---
 

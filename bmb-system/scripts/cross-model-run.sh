@@ -62,6 +62,52 @@ fi
 
 WORKDIR="${BMB_WORKDIR:-$(pwd)}"
 
+# --- Profile-based default timeouts (v0.3.4) ---
+# Override main TIMEOUT with profile-specific defaults, then config override
+_PROFILE_TIMEOUT=""
+case "$PROFILE" in
+  council)     _PROFILE_TIMEOUT=600 ;;
+  verify)      _PROFILE_TIMEOUT=600 ;;
+  review)      _PROFILE_TIMEOUT=600 ;;
+  test)        _PROFILE_TIMEOUT=1200 ;;
+  exec-assist) _PROFILE_TIMEOUT=3600 ;;
+esac
+
+# Config override: timeouts.{profile} key takes precedence
+if [ -f "$CONFIG_FILE" ] && command -v python3 &>/dev/null; then
+  _PROF_CFG=$(_BMB_CFG="$CONFIG_FILE" _BMB_PROF="$PROFILE" python3 << 'PYEOF'
+import json, os
+try:
+    c = json.load(open(os.environ['_BMB_CFG']))
+    t = c.get('timeouts', {})
+    prof = os.environ.get('_BMB_PROF', '')
+    # Check profile-specific key first, then targeted re-test/re-verify
+    val = t.get(prof, t.get(f'cross_model_{prof}', ''))
+    if val: print(val)
+except:
+    pass
+PYEOF
+  ) || _PROF_CFG=""
+  if [ -n "$_PROF_CFG" ]; then
+    _PROFILE_TIMEOUT="$_PROF_CFG"
+  fi
+fi
+
+# Apply profile timeout if set
+if [ -n "$_PROFILE_TIMEOUT" ]; then
+  TIMEOUT="$_PROFILE_TIMEOUT"
+fi
+
+# --- Incident spool helper ---
+BMB_INCIDENTS_SCRIPT="$HOME/.claude/bmb-system/scripts/bmb-external-incidents.sh"
+_bmb_record_incident() {
+  if [ -f "$BMB_INCIDENTS_SCRIPT" ]; then
+    # shellcheck disable=SC1090
+    source "$BMB_INCIDENTS_SCRIPT"
+    bmb_incidents_record "$@"
+  fi
+}
+
 # --- Profile-based permission prefix ---
 PERM_PREFIX=""
 case "$PROFILE" in
@@ -91,23 +137,109 @@ case "$PROVIDER" in
     if ! command -v codex &>/dev/null; then
       echo "ERROR: codex CLI not found. Install or switch provider in config." >&2
       echo "DEGRADED: Cross-model unavailable, proceeding Claude-only" >&2
+      _bmb_record_incident "codex_cli_missing" "profile=$PROFILE" 1 "cross-model-run"
       exit 1
     fi
     MODEL_ARGS=""
     if [ -n "$MODEL_OVERRIDE" ]; then
       MODEL_ARGS="-m $MODEL_OVERRIDE"
     fi
-    if [ -n "$OUTPUT_FILE" ]; then
-      codex exec $MODEL_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT" > "$OUTPUT_FILE" 2>&1
+
+    # --- v0.3.4: timeout + stall detection + recovery-first ---
+    _RECOVERY_ATTEMPTED=false
+    _run_codex() {
+      local attempt="${1:-1}"
+      local output_tmp
+      if [ -n "$OUTPUT_FILE" ]; then
+        output_tmp="${OUTPUT_FILE}.tmp.$$"
+        # Stream to temp file (not RAM buffer)
+        timeout "$TIMEOUT" codex exec $MODEL_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT" > "$output_tmp" 2>&1
+        local rc=$?
+        if [ $rc -eq 0 ] && [ -s "$output_tmp" ]; then
+          mv "$output_tmp" "$OUTPUT_FILE"
+        else
+          # Preserve partial output for debugging
+          [ -f "$output_tmp" ] && mv "$output_tmp" "${OUTPUT_FILE}.partial" 2>/dev/null || true
+        fi
+        return $rc
+      else
+        exec timeout "$TIMEOUT" codex exec $MODEL_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT"
+      fi
+    }
+
+    # First attempt
+    _run_codex 1
+    _EXIT_CODE=$?
+
+    # Classify and record
+    if [ $_EXIT_CODE -eq 0 ]; then
+      # Success
+      :
+    elif [ $_EXIT_CODE -eq 124 ]; then
+      # timeout(1) exit code = 124
+      _bmb_record_incident "codex_review_timeout" "profile=$PROFILE timeout=${TIMEOUT}s" $_EXIT_CODE "cross-model-run"
+      echo "TIMEOUT: codex exceeded ${TIMEOUT}s (profile=$PROFILE)" >&2
+
+      # Recovery-first: one bounded restart attempt
+      if [ "$_RECOVERY_ATTEMPTED" = false ]; then
+        _RECOVERY_ATTEMPTED=true
+        _bmb_record_incident "codex_recovery_restart_attempted" "profile=$PROFILE retry=1" 0 "cross-model-run"
+        echo "RECOVERY: attempting one bounded restart..." >&2
+
+        # Use recovery_restart timeout (shorter)
+        local recovery_timeout="${TIMEOUT}"
+        if [ -f "$CONFIG_FILE" ] && command -v python3 &>/dev/null; then
+          local _rt
+          _rt=$(_BMB_CFG="$CONFIG_FILE" python3 -c "
+import json, os
+try:
+    c = json.load(open(os.environ['_BMB_CFG']))
+    print(c.get('timeouts', {}).get('recovery_restart', 300))
+except:
+    print(300)
+" 2>/dev/null) || _rt=300
+          recovery_timeout="$_rt"
+        fi
+        TIMEOUT="$recovery_timeout"
+
+        _run_codex 2
+        _EXIT_CODE=$?
+
+        if [ $_EXIT_CODE -eq 0 ]; then
+          _bmb_record_incident "dependency_login_recovered" "profile=$PROFILE recovery=restart" 0 "cross-model-run"
+        else
+          _bmb_record_incident "codex_recovery_restart_failed" "profile=$PROFILE exit=$_EXIT_CODE" $_EXIT_CODE "cross-model-run"
+          echo "RECOVERY FAILED: degrading to Claude-only" >&2
+        fi
+      fi
+      exit 2  # exit 2 = timeout (DEGRADED)
+
+    elif [ $_EXIT_CODE -gt 128 ]; then
+      # Killed by signal
+      _bmb_record_incident "codex_exec_nonzero" "profile=$PROFILE signal=$((_EXIT_CODE - 128))" $_EXIT_CODE "cross-model-run"
+      echo "KILLED: codex terminated by signal $((_EXIT_CODE - 128)) (profile=$PROFILE)" >&2
+      exit 3  # exit 3 = process hung/killed (DEGRADED)
+
     else
-      exec codex exec $MODEL_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT"
+      # General non-zero exit
+      # Check for auth failure patterns
+      if [ -n "$OUTPUT_FILE" ] && [ -f "${OUTPUT_FILE}.partial" ]; then
+        if grep -qi '401\|auth\|unauthorized' "${OUTPUT_FILE}.partial" 2>/dev/null; then
+          _bmb_record_incident "codex_auth_401" "profile=$PROFILE" $_EXIT_CODE "cross-model-run"
+        fi
+      fi
+      _bmb_record_incident "codex_exec_nonzero" "profile=$PROFILE exit=$_EXIT_CODE" $_EXIT_CODE "cross-model-run"
+      exit 1  # exit 1 = CLI not found or general failure (DEGRADED)
     fi
+
+    exit $_EXIT_CODE
     ;;
 
   gemini)
     if ! command -v gemini &>/dev/null; then
       echo "ERROR: gemini CLI not found. Install or switch provider in config." >&2
       echo "DEGRADED: Cross-model unavailable, proceeding Claude-only" >&2
+      _bmb_record_incident "gemini_cli_missing" "profile=$PROFILE" 1 "cross-model-run"
       exit 1
     fi
     MODEL_ARGS=""
@@ -115,9 +247,17 @@ case "$PROVIDER" in
       MODEL_ARGS="-m $MODEL_OVERRIDE"
     fi
     if [ -n "$OUTPUT_FILE" ]; then
-      gemini run $MODEL_ARGS "$FULL_PROMPT" > "$OUTPUT_FILE" 2>&1
+      timeout "$TIMEOUT" gemini run $MODEL_ARGS "$FULL_PROMPT" > "$OUTPUT_FILE" 2>&1
+      _GEM_EXIT=$?
+      if [ $_GEM_EXIT -eq 124 ]; then
+        _bmb_record_incident "gemini_review_timeout" "profile=$PROFILE timeout=${TIMEOUT}s" $_GEM_EXIT "cross-model-run"
+        exit 2
+      elif [ $_GEM_EXIT -ne 0 ]; then
+        _bmb_record_incident "gemini_exec_nonzero" "profile=$PROFILE exit=$_GEM_EXIT" $_GEM_EXIT "cross-model-run"
+        exit 1
+      fi
     else
-      exec gemini run $MODEL_ARGS "$FULL_PROMPT"
+      exec timeout "$TIMEOUT" gemini run $MODEL_ARGS "$FULL_PROMPT"
     fi
     ;;
 

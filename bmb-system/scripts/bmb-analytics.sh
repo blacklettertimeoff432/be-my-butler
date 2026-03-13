@@ -243,3 +243,132 @@ bmb_analytics_end_session() {
   # Cleanup step files (use find to avoid zsh no-match error)
   find "${BMB_ANALYTICS_STEPS}" -name '*.current.env' -delete 2>/dev/null || true
 }
+
+# ──────────────────────────────────────────────────────
+# v0.3.4 — External Incident Import + Recovery Markers
+# ──────────────────────────────────────────────────────
+
+# Import external incidents from NDJSON spool into analytics DB
+# Bridge: NDJSON spool → external_incidents table + events table + pattern_counts
+# Usage: bmb_analytics_import_incidents [LOOKBACK_SEC]
+bmb_analytics_import_incidents() {
+  local lookback_sec="${1:-86400}"
+  bmb_analytics_use_state || return 0
+
+  local incidents_script="$HOME/.claude/bmb-system/scripts/bmb-external-incidents.sh"
+  if [ ! -f "$incidents_script" ]; then
+    return 0
+  fi
+
+  # Source the incidents helper
+  # shellcheck disable=SC1090
+  source "$incidents_script"
+
+  # Import spool → external_incidents table
+  local imported
+  imported=$(bmb_incidents_import "$BMB_ANALYTICS_SESSION_ID" "$BMB_ANALYTICS_DB" "$lookback_sec") || imported=0
+
+  if [ "${imported:-0}" -gt 0 ]; then
+    # Also bridge into events table for unified querying
+    local cutoff_epoch
+    cutoff_epoch=$(( $(date +%s) - lookback_sec ))
+
+    # Query imported incidents and insert as events
+    sqlite3 "$BMB_ANALYTICS_DB" <<SQL
+INSERT OR IGNORE INTO events (session_id, step, step_seq, agent, event_type, severity, event_key, detail)
+SELECT
+  session_id,
+  'ext',
+  ROW_NUMBER() OVER (ORDER BY ts_epoch),
+  source,
+  'external_incident',
+  severity,
+  event_key,
+  detail
+FROM external_incidents
+WHERE session_id = '${BMB_ANALYTICS_SESSION_ID}'
+  AND ts_epoch >= ${cutoff_epoch}
+  AND NOT EXISTS (
+    SELECT 1 FROM events e
+    WHERE e.session_id = external_incidents.session_id
+      AND e.event_key = external_incidents.event_key
+      AND e.event_type = 'external_incident'
+  );
+SQL
+
+    # Update pattern_counts for each imported incident
+    sqlite3 "$BMB_ANALYTICS_DB" <<SQL
+INSERT INTO pattern_counts (event_key, category, description, last_session_id, severity_max)
+SELECT event_key, 'dependency', 'External dependency incident', session_id, severity
+FROM external_incidents
+WHERE session_id = '${BMB_ANALYTICS_SESSION_ID}'
+  AND ts_epoch >= ${cutoff_epoch}
+ON CONFLICT(event_key) DO UPDATE SET
+  count = count + 1,
+  last_seen = strftime('%Y-%m-%dT%H:%M:%S','now','localtime'),
+  last_session_id = excluded.last_session_id,
+  severity_max = CASE
+    WHEN (SELECT MAX(r) FROM (
+      SELECT CASE severity_max
+        WHEN 'critical' THEN 3 WHEN 'error' THEN 2 WHEN 'warn' THEN 1 ELSE 0 END AS r
+      FROM pattern_counts WHERE event_key = excluded.event_key
+      UNION ALL
+      SELECT CASE excluded.severity_max
+        WHEN 'critical' THEN 3 WHEN 'error' THEN 2 WHEN 'warn' THEN 1 ELSE 0 END
+    )) > (SELECT CASE severity_max
+        WHEN 'critical' THEN 3 WHEN 'error' THEN 2 WHEN 'warn' THEN 1 ELSE 0 END
+      FROM pattern_counts WHERE event_key = excluded.event_key)
+    THEN excluded.severity_max
+    ELSE severity_max
+  END;
+SQL
+
+    # Rotate spool after successful import
+    bmb_incidents_rotate
+  fi
+
+  echo "$imported"
+}
+
+# Count incident patterns for analyst queries
+# Usage: bmb_analytics_pattern_count [EVENT_KEY_PREFIX] [MIN_COUNT]
+# Returns: tab-separated rows of event_key, count, severity_max, last_seen
+bmb_analytics_pattern_count() {
+  local prefix="${1:-}" min_count="${2:-1}"
+  bmb_analytics_use_state || return 0
+
+  local where_clause=""
+  if [ -n "$prefix" ]; then
+    where_clause="AND event_key LIKE '$(_bmb_sql_escape "$prefix")%'"
+  fi
+
+  _bmb_sql "$BMB_ANALYTICS_DB" \
+    "SELECT event_key, count, severity_max, last_seen
+     FROM pattern_counts
+     WHERE count >= ${min_count} ${where_clause}
+     ORDER BY count DESC
+     LIMIT 20;"
+}
+
+# Mark a recovery attempt and its outcome
+# Usage: bmb_analytics_recovery_marker STEP AGENT RECOVERY_TYPE OUTCOME [DETAIL]
+# RECOVERY_TYPE: restart | auth_retry | fallback
+# OUTCOME: success | failed
+bmb_analytics_recovery_marker() {
+  local step="${1:?}" agent="${2:-}" recovery_type="${3:?}" outcome="${4:?}" detail="${5:-}"
+  bmb_analytics_use_state || return 0
+
+  local severity="info"
+  local event_key="recovery_${recovery_type}_${outcome}"
+  if [ "$outcome" = "failed" ]; then
+    severity="warn"
+  fi
+
+  # Record as event
+  bmb_analytics_event "$step" "$agent" "recovery_attempt" "$severity" "$event_key" \
+    "type=${recovery_type} outcome=${outcome} ${detail}"
+
+  # Update pattern_counts
+  bmb_analytics_count_pattern "$event_key" "recovery" \
+    "Recovery ${recovery_type}: ${outcome}" "$severity"
+}
