@@ -154,7 +154,7 @@ Long pipelines bleed context. BMB compresses at three layers: **intra-step** (wi
 <td>
 
 ### Configurable Recipes
-Not every task needs 11.5 steps. Pick a **recipe** to skip what you don't need — a bugfix skips brainstorm and council; a research task skips execution entirely.
+Not every task needs 12 steps. Pick a **recipe** to skip what you don't need — a bugfix skips brainstorm and council; a research task skips execution entirely.
 
 </td>
 </tr>
