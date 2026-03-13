@@ -3,6 +3,26 @@
 All notable changes to BMB will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioned per [Semantic Versioning](https://semver.org/).
 
+## [0.3.5] - 2026-03-13
+
+### Added
+- **Lead Retrospective (Step 11)** — dedicated retrospective step before Cleanup. Forces `bmb_learn` call (minimum 1 per session), Analyst report relay to user, promotion check, and auto-memory save. Pipeline is now 12 steps.
+- **Portable `timeout` fallback** — `cross-model-run.sh` now defines a `perl`-based `timeout()` function when GNU coreutils `timeout` is absent (macOS default). Eliminates the primary cause of cross-model pane silent exit (exit 127 under `set -euo pipefail`).
+- **Codex pre-flight check** — `_codex_preflight()` runs a 10-second smoke test before each cross-model call; failure records an incident and exits with code 5 instead of hanging.
+- **stderr separation** — `codex exec` stdout and stderr are captured to separate files; stderr is scanned for auth/error patterns and recorded to the incident spool.
+- **Exit code taxonomy** (cross-model-run.sh): 0=success, 1=missing/general, 2=timeout, 3=killed, 4=auth failure, 5=preflight failure, 6=stall detected.
+
+### Changed
+- **12-step pipeline** — Step 11 (Cleanup) split into Step 11 (Lead Retrospective) + Step 12 (Cleanup). All recipe step tables updated.
+- **`skills/bmb/bmb.md`** — Step 11 rewritten as Lead Retrospective with 5 substeps (11.1 bmb_learn, 11.2 analyst relay, 11.3 promotion check, 11.4 auto-memory, 11.5 context check); original cleanup items moved to Step 12.
+- **`scripts/cross-model-run.sh`** — preflight guard added; timeout fallback placed at top of file before any invocation; exit codes refined for all failure paths.
+- **`config/defaults.json`** — added `retrospective.min_learnings_per_session: 1`, `cross_model.preflight_timeout: 10`.
+
+### Fixed
+- `timeout` command missing on macOS causing cross-model panes to die silently (exit 127 from `set -euo pipefail`)
+- Retrospective steps skipped by Lead when commit/push felt like pipeline completion
+- `bmb_learn` never called in production sessions — learnings.md remained empty across pipeline runs
+
 ## [0.3.4] - 2026-03-13
 
 ### Added
@@ -150,6 +170,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 - `bmb-learn.sh`: missing `mkdir -p` for global learnings directory
 - Worktree cleanup does not delete branches after `git worktree remove`
 
+[0.3.5]: https://github.com/project820/be-my-butler/releases/tag/v0.3.5
 [0.3.4]: https://github.com/project820/be-my-butler/releases/tag/v0.3.4
 [0.3.0]: https://github.com/project820/be-my-butler/releases/tag/v0.3.0
 [0.2.0]: https://github.com/project820/be-my-butler/releases/tag/v0.2.0

@@ -17,7 +17,7 @@ Multi-agent orchestration pipeline with cross-model verification, idea lifecycle
 ## Skills
 | Skill | Description |
 |-------|-------------|
-| `/BMB` | Full A-to-Z pipeline (11.5 steps) |
+| `/BMB` | Full A-to-Z pipeline (12 steps) |
 | `/BMB-brainstorm` | Lead + Consultant brainstorming with idea lifecycle + Codex plan review |
 | `/BMB-refactoring` | Parallel analysis + cross-model execution + review |
 | `/BMB-setup` | First-time onboarding + project configuration |

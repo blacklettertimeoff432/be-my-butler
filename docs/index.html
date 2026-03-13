@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BMB — Be My Butler | Multi-Agent Orchestration for Claude Code</title>
-<meta name="description" content="11.5-step, 9-agent orchestration pipeline for Claude Code with cross-model blind verification, council debate, analytics, and worktree isolation.">
+<meta name="description" content="12-step, 9-agent orchestration pipeline for Claude Code with cross-model blind verification, council debate, analytics, and worktree isolation.">
 <meta property="og:title" content="BMB — Be My Butler">
-<meta property="og:description" content="9-agent, 11.5-step orchestration for Claude Code with cross-model blind verification and analytics">
+<meta property="og:description" content="9-agent, 12-step orchestration for Claude Code with cross-model blind verification and analytics">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://raw.githubusercontent.com/project820/be-my-butler/main/assets/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="BMB — Be My Butler">
-<meta name="twitter:description" content="9-agent, 11.5-step orchestration for Claude Code with cross-model blind verification and analytics">
+<meta name="twitter:description" content="9-agent, 12-step orchestration for Claude Code with cross-model blind verification and analytics">
 <link rel="alternate" hreflang="en" href="https://project820.github.io/be-my-butler/">
 <link rel="alternate" hreflang="ko" href="https://project820.github.io/be-my-butler/index.ko.html">
 <link rel="alternate" hreflang="ja" href="https://project820.github.io/be-my-butler/index.ja.html">
@@ -106,7 +106,7 @@
     </div>
     <div class="hero-stats">
       <div class="stat">
-        <div class="stat-value">11.5</div>
+        <div class="stat-value">12</div>
         <div class="stat-label">Pipeline Steps</div>
       </div>
       <div class="stat">
@@ -375,7 +375,7 @@ graph TB
   <div class="container">
     <div class="section-header fade-in">
       <div class="section-label">03 &mdash; Flow</div>
-      <h2>The 11.5-Step Pipeline</h2>
+      <h2>The 12-Step Pipeline</h2>
       <p class="section-desc">From user intent to production-ready code. Click each step for details.</p>
     </div>
     <div class="accordion fade-in">
@@ -641,6 +641,27 @@ graph TB
           <div class="step-num">11</div>
           <div class="accordion-summary">
             <div class="accordion-title-wrap">
+              <div class="step-title">Lead Retrospective</div>
+              <div class="step-agents">
+                <span class="agent-pill lead-pill">Lead</span>
+              </div>
+            </div>
+            <div class="accordion-chevron">&#9662;</div>
+          </div>
+        </div>
+        <div class="accordion-body">
+          <div class="accordion-detail">
+            Dedicated retrospective step. Lead calls <code>bmb_learn</code> (minimum 1 per session — MISTAKE or PRAISE). Reads <code>analyst-report.md</code> and relays key findings to user. Scans <code>learnings.md</code> for recurrence &ge;2 &rarr; propose CLAUDE.md promotion. Saves session insights to auto-memory.
+            <div class="step-badges"><span class="tag cyan">bmb_learn</span><span class="tag green">CLAUDE.md promotion</span><span class="tag">analyst relay</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Step 12 -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          <div class="step-num">12</div>
+          <div class="accordion-summary">
+            <div class="accordion-title-wrap">
               <div class="step-title">Cleanup + Session Prep</div>
               <div class="step-agents">
                 <span class="agent-pill lead-pill">Lead</span>
@@ -651,8 +672,8 @@ graph TB
         </div>
         <div class="accordion-body">
           <div class="accordion-detail">
-            <code>bmb_learn PRAISE</code> on success. Check recurrence &ge;2 &rarr; propose CLAUDE.md promotion. Git commit/push. FTS5 indexing. Generate session-prep.md for next session.
-            <div class="step-badges"><span class="tag cyan">auto-learning</span><span class="tag">session continuity</span><span class="tag green">CLAUDE.md promotion</span></div>
+            Consultant pane exit. Conversation logger shutdown. Git commit/push. FTS5 indexing. Generate session-prep.md and carry-forward.md for next session. Worktree cleanup. Telegram notification. &ldquo;Continue?&rdquo; prompt.
+            <div class="step-badges"><span class="tag">session continuity</span><span class="tag cyan">carry-forward</span><span class="tag">git push</span></div>
           </div>
         </div>
       </div>
@@ -675,7 +696,8 @@ flowchart TD
   S9["9. Simplify + Re-verify"]
   S10["10. Docs Update"]
   S105["10.5 Retrospective Analysis<br/><i>Bird's Law severity</i>"]
-  S11["11. Cleanup + Session Prep"]
+  S11["11. Lead Retrospective<br/><i>bmb_learn + analyst relay</i>"]
+  S12["12. Cleanup + Session Prep"]
 
   S1 --> S2
   S2 --> S3
@@ -704,6 +726,7 @@ flowchart TD
   S9 --> S10
   S10 --> S105
   S105 --> S11
+  S11 --> S12
 
   classDef decision fill:#1a1500,stroke:#d97706,color:#f59e0b
   classDef cancel fill:#2a0a0a,stroke:#ef4444,color:#ef4444
@@ -713,7 +736,7 @@ flowchart TD
 
   class S3,S8 decision
   class CANCEL cancel
-  class S1,S2,S4,S5,S55,S6,S7,S9,S10,S11 step
+  class S1,S2,S4,S5,S55,S6,S7,S9,S10,S11,S12 step
   class EX,FE parallel
   class S105 analyst
       </pre>
@@ -1183,9 +1206,9 @@ sequenceDiagram
             <div class="card-model">Full Pipeline</div>
           </div>
         </div>
-        <div class="card-desc">The complete 11.5-step A-to-Z pipeline. Cross-model council, blind verification, analytics, simplification, and session continuity. Use for any non-trivial feature or bug fix.</div>
+        <div class="card-desc">The complete 12-step A-to-Z pipeline. Cross-model council, blind verification, analytics, simplification, retrospective, and session continuity. Use for any non-trivial feature or bug fix.</div>
         <div class="card-tags">
-          <span class="tag">11.5 steps</span>
+          <span class="tag">12 steps</span>
           <span class="tag purple">cross-model</span>
           <span class="tag green">worktree</span>
           <span class="tag amber">blind verify</span>

@@ -289,6 +289,7 @@ except:
 
         if [ $_EXIT_CODE -eq 0 ]; then
           _bmb_record_incident "dependency_login_recovered" "profile=$PROFILE recovery=restart" 0 "cross-model-run"
+          exit 0  # recovery succeeded — not degraded
         else
           _bmb_record_incident "codex_recovery_restart_failed" "profile=$PROFILE exit=$_EXIT_CODE" $_EXIT_CODE "cross-model-run"
           echo "RECOVERY FAILED: degrading to Claude-only" >&2

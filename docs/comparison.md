@@ -67,7 +67,7 @@ An honest comparison of BMB against other AI coding tools. Every tool has trade-
 - Deep Claude Code integration (agents, skills, tmux orchestration)
 - Verification pipeline with blind cross-model review
 - No external API dependencies for core functionality
-- Simpler mental model: 11.5 steps, 9 agents, done
+- Simpler mental model: 12 steps, 9 agents, done
 - Built-in analytics and observability for pipeline health
 
 **Choose Composio when:** You need AI agents that interact with external services. Your workflow involves API calls, ticket management, or multi-service orchestration.
@@ -125,13 +125,13 @@ The entire pipeline runs inside tmux. If you are not comfortable with tmux or yo
 
 ### Latency
 
-A full 11.5-step pipeline takes 10-30 minutes depending on task complexity and timeouts. This is appropriate for features that would take a human developer hours, but overkill for a one-line fix.
+A full 12-step pipeline takes 10-30 minutes depending on task complexity and timeouts. This is appropriate for features that would take a human developer hours, but overkill for a one-line fix.
 
 **Mitigation:** Use `bugfix` recipe (5-10 min) for small fixes. Use `research` recipe (2-5 min) for exploration only.
 
 ### Learning Curve
 
-Understanding 9 agents, 11.5 steps, and 6 recipes takes time. The handoff file system, worktree lifecycle, and blind verification protocol all have specific rules.
+Understanding 9 agents, 12 steps, and 6 recipes takes time. The handoff file system, worktree lifecycle, and blind verification protocol all have specific rules.
 
 **Mitigation:** Start with `research` recipe to learn brainstorming. Graduate to `bugfix` for a short pipeline. Use `feature` once comfortable.
 

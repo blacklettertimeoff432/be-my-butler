@@ -17,7 +17,7 @@
   },
   "timeouts": {
     "claude_agent": 1200,
-    "cross_model": 3600,
+    "cross_model": 1800,
     "writer": 600,
     "codex_review": 600,
     "council": 600,

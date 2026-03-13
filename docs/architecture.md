@@ -464,7 +464,7 @@ Each page contains **7 vertical-scroll cards** with `scroll-snap-type: y proximi
 
 | # | Card | Content |
 |---|------|---------|
-| 1 | Cover | BMB logo, tagline, 9 Agents / 11.5 Steps / Cross-Model tags |
+| 1 | Cover | BMB logo, tagline, 9 Agents / 12 Steps / Cross-Model tags |
 | 2 | Problem | 2×2 grid: Self-verification bias, Context explosion, Edge cases, Design tunnel vision |
 | 3 | Pipeline | 4-phase flow (PLAN/BUILD/VERIFY/REFINE) with `/BMB` command prompt |
 | 4 | Architecture | Simplified SVG: handoff flow, blind wall, worktree isolation |

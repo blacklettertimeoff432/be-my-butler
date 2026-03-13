@@ -970,7 +970,7 @@ Lead fills these fixed JSON one-liner templates when sending lifecycle events vi
 - After Step 2: Write `.bmb/handoffs/.compressed/brainstorm-digest.md`
 - Before Step 3: Generate `.bmb/handoffs/.compressed/briefing.summary.md`
 - Before Steps 6-8: Generate compressed test/verify reports
-- Step 11: Archive session-log
+- Step 12: Archive session-log
 
 ## GRACEFUL DEGRADATION (v0.3.4: Recovery-First)
 

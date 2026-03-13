@@ -8,7 +8,7 @@ Recipes control which pipeline steps are executed. Choose based on the task's sc
 
 | Recipe | Steps | Council | Test | Verify | Simplify | Analyst | Frontend |
 |--------|-------|---------|------|--------|----------|---------|----------|
-| `feature` | All 11.5 | Yes | Yes (cross) | Yes (cross) | Yes | Yes | If needed |
+| `feature` | All 12 | Yes | Yes (cross) | Yes (cross) | Yes | Yes | If needed |
 | `bugfix` | 1-2-3-5-6-7-8-9-10-10.5-11 | No | Yes (cross) | Yes (cross) | No | Yes | No |
 | `refactor` | 1-2-3-4-5-6-7-8-9-10-10.5-11 | Yes | No | Yes (cross) | Yes | Yes | If needed |
 | `research` | 1-2-3 | No | No | No | No | No | No |
@@ -175,4 +175,4 @@ flowchart TD
     Q4 -->|Restructuring| refactor
 ```
 
-If unsure, start with `feature` -- it includes everything (all 11.5 steps). You can always cancel after the approval step if the scope was wrong.
+If unsure, start with `feature` -- it includes everything (all 12 steps). You can always cancel after the approval step if the scope was wrong.
