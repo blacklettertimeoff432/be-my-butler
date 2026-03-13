@@ -153,7 +153,7 @@ bmb_analytics_step_end "1" "setup"
 ```
 
 ### Step 2: Brainstorm + Consultant (In-Process)
-**Key change from Kion: Lead does brainstorming directly (no brainstormer agent).**
+**Lead does brainstorming directly (no separate brainstormer agent).**
 
 ```bash
 bmb_analytics_step_start "2" "brainstorm"

@@ -259,7 +259,7 @@ Mobile-optimized summary pages (7-card vertical scroll, 4 locales):
 │   ├── config/              # defaults.json (v2)
 │   ├── scripts/             # cross-model-run.sh, bmb-config.sh, bmb-ideas.sh, bmb-analytics.sh, ...
 │   └── plans/               # Version release plans
-└── commands/                # /distill, /mistake, /kion
+└── docs/                    # Architecture, configuration, troubleshooting
 
 ~/.claude/                   # Runtime (symlinks to repo)
 ├── skills/bmb* → repo       # Symlinked skills
