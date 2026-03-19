@@ -249,8 +249,8 @@ bmb_analytics_step_start "2" "brainstorm"
 0.5. **Parallel Track Assessment (v0.4.0)**:
    After brainstorming completes (standalone mode only), assess:
    "Can this work be split into independent tracks?"
-   - If YES: generate `.bmb/parallel-manifest.json` + per-track prompts + consolidation prompt
-   - If NO: continue as standalone
+- If YES: generate `.bmb/parallel-manifest.json` + per-track prompts + consolidation prompt
+- If NO: continue as standalone
    ```bash
    if [ "$SESSION_MODE" = "standalone" ]; then
      # Lead assesses parallelism during brainstorm
