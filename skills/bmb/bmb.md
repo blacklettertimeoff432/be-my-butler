@@ -157,7 +157,7 @@ bmb_analytics_step_start "1" "setup"
 
 # Load timeout configs (used by Steps 4-10)
 CLAUDE_TIMEOUT=$(bmb_config_get "timeouts.claude_agent" || echo "1200")
-CROSS_TIMEOUT=$(bmb_config_get "timeouts.cross_model" || echo "3600")
+CROSS_TIMEOUT=$(bmb_config_get "timeouts.cross_model" || echo "1800")
 WRITER_TIMEOUT=$(bmb_config_get "timeouts.writer" || echo "600")
 
 # Load past learnings — inject MISTAKE entries as Known Pitfalls

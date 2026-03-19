@@ -1,16 +1,16 @@
-> Last synced with README.md: 2026-03-12
+> Last synced with README.md: 2026-03-19
 
 [English](../README.md) | **한국어** | [日本語](README.ja.md) | [繁體中文](README.zh-TW.md)
 
 # BMB — Be My Butler
 
-**Claude Code를 위한 11.5단계, 9-에이전트 멀티에이전트 오케스트레이션 파이프라인**
+**Claude Code를 위한 12단계, 10-에이전트 멀티에이전트 오케스트레이션 파이프라인**
 
 혼자서 코드를 작성하고, 혼자서 검증하고, 혼자서 리팩토링하는 시대는 끝났습니다.
-BMB는 9개의 전문 에이전트가 설계-구현-검증-분석-간소화까지 자율적으로 협업하는 파이프라인입니다.
+BMB는 10개의 전문 에이전트가 설계-구현-검증-분석-간소화까지 자율적으로 협업하는 파이프라인입니다.
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](../CHANGELOG.md)
-[![What's New](https://img.shields.io/badge/what's_new-v0.2-green.svg)](../WHATS-NEW-0.2.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](../CHANGELOG.md)
+[![What's New](https://img.shields.io/badge/what's_new-v0.4.0-green.svg)](../WHATS-NEW-0.4.md)
 
 ---
 

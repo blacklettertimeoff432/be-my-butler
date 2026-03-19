@@ -26,9 +26,9 @@ Run `/BMB-setup` to generate a config file interactively.
 
   "timeouts": {
     "claude_agent": 1200,      // Executor, Tester, Verifier, Simplifier
-    "cross_model": 3600,       // Cross-model CLI operations
+    "cross_model": 1800,       // Cross-model CLI operations
     "writer": 600,             // Writer agent
-    "analyst": 300             // Analyst agent (Step 10.5)
+    "analyst": 180             // Analyst agent (Step 10.5)
   },
 
   "analytics": {
@@ -78,9 +78,9 @@ Run `/BMB-setup` to generate a config file interactively.
 | Field | Type | Default | Applies To |
 |-------|------|---------|------------|
 | `claude_agent` | integer | `1200` | Executor, Tester, Verifier, Simplifier agents |
-| `cross_model` | integer | `3600` | All `cross-model-run.sh` invocations |
+| `cross_model` | integer | `1800` | All `cross-model-run.sh` invocations |
 | `writer` | integer | `600` | Writer agent (documentation updates) |
-| `analyst` | integer | `300` | Analyst agent (Step 10.5 retrospective) |
+| `analyst` | integer | `180` | Analyst agent (Step 10.5 retrospective) |
 
 All values are in **seconds**.
 

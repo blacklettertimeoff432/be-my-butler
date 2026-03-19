@@ -6,13 +6,13 @@
 
 **Multi-agent orchestration for Claude Code with cross-model blind verification**
 
-[![Version](https://img.shields.io/badge/version-0.3.5-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
 [![Agents](https://img.shields.io/badge/agents-10-orange.svg)](#the-10-agents)
 [![Steps](https://img.shields.io/badge/pipeline_steps-12-teal.svg)](#the-12-step-pipeline)
-[![What's New](https://img.shields.io/badge/what's_new-v0.3.5-green.svg)](WHATS-NEW-0.3.5.md)
+[![What's New](https://img.shields.io/badge/what's_new-v0.4.0-green.svg)](WHATS-NEW-0.4.md)
 
 <!-- TODO: Replace with asciinema recording -->
 <!-- [![asciicast](assets/demo.svg)](https://asciinema.org/a/TODO) -->
@@ -283,17 +283,18 @@ Mobile-optimized summary pages (7-card vertical scroll, 4 locales):
 
 ---
 
-## What's New in v0.3.5
+## What's New in v0.4.0
 
-**Lead Retrospective Enforcement + Cross-Model Reliability** — closes the learning loop and fixes silent cross-model failures on macOS.
+**6-Feature Upgrade** — cross-model fix, agent discipline, visual brainstorming, session continuity, parallel sessions, and Monitor watchdog.
 
 | Capability | Description |
 |---|---|
-| **Step 11: Lead Retrospective** | New dedicated retrospective step before Cleanup. Forces `bmb_learn` (min 1 per session), Analyst report relay, promotion check, and auto-memory save. Pipeline is now **12 steps**. |
-| **Portable `timeout` fallback** | `cross-model-run.sh` now defines a `perl`-based `timeout()` shim when GNU coreutils is absent (macOS default). Eliminates silent exit-127 failures under `set -euo pipefail`. |
-| **Pre-flight check** | `_codex_preflight()` validates Codex before each cross-model call; failure records an incident and degrades immediately instead of hanging for 10+ minutes. |
-| **stderr separation** | Codex stdout and stderr captured to separate files; stderr scanned for auth/error patterns and logged to incident spool. |
-| **Exit code taxonomy** | Cross-model exit codes refined: 0=success, 1=general, 2=timeout, 3=killed, 4=auth failure, 5=preflight failure, 6=stall detected. |
+| **OMX Cross-Model Fix** | Replaced raw `codex exec` with MCP-disabled invocation. Eliminates 100% timeout rate caused by MCP server loading. |
+| **Superpowers Discipline** | Verification gates, debugging discipline, TDD checklists, and YAGNI principles embedded directly in agent prompts. All agents upgraded to Opus 4.6 (1M context). |
+| **Visual Brainstorming** | Browser-based visual companion for Step 2 — mockups, architecture diagrams, trade-off matrices via Superpowers server. |
+| **Session-End Prep** | Step 12 auto-generates `next-session-plan.md` with completed items, follow-ups, and a one-line start prompt. |
+| **Parallel Sessions** | `SESSION_MODE` enum (standalone/sub/consolidation) for safe concurrent pipelines with track splitting and consolidation prompts. |
+| **Monitor Watchdog** | Haiku Monitor enhanced with pane sweep for orphaned processes and nudge escalation for stalled agents. |
 
 ---
 

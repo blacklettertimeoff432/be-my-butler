@@ -1,16 +1,16 @@
-> Last synced with README.md: 2026-03-12
+> Last synced with README.md: 2026-03-19
 
 [English](../README.md) | [한국어](README.ko.md) | [日本語](README.ja.md) | **繁體中文**
 
 # BMB — Be My Butler
 
-**Claude Code 的 11.5 步驟、9 代理多代理編排管線**
+**Claude Code 的 12 步驟、10 代理多代理編排管線**
 
 讓一個代理包辦所有事情的時代結束了。
-BMB 由 9 個專業代理自主協作，涵蓋設計、實作、驗證、分析到簡化的完整流程。
+BMB 由 10 個專業代理自主協作，涵蓋設計、實作、驗證、分析到簡化的完整流程。
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](../CHANGELOG.md)
-[![What's New](https://img.shields.io/badge/what's_new-v0.2-green.svg)](../WHATS-NEW-0.2.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](../CHANGELOG.md)
+[![What's New](https://img.shields.io/badge/what's_new-v0.4.0-green.svg)](../WHATS-NEW-0.4.md)
 
 ---
 

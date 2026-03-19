@@ -3,6 +3,34 @@
 All notable changes to BMB will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioned per [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-03-19
+
+### Added
+- **OMX cross-model fix** — MCP-disabled invocation replaces raw `codex exec`, eliminating 100% timeout rate from MCP server loading overhead
+- **Superpowers discipline embedding** — verification gates, debugging discipline, TDD checklists, YAGNI, and scope checks embedded in agent prompts (~150-300 tokens per agent)
+- **Visual brainstorming** — browser-based visual companion in Step 2 via Superpowers server for mockups, architecture diagrams, and trade-off matrices
+- **Session-end preparation** — Step 12 auto-generates `next-session-plan.md` with completed items, follow-ups, and one-line start prompt
+- **Parallel session integration** — `SESSION_MODE` enum (standalone/sub/consolidation) for safe concurrent pipelines with track splitting
+- **Monitor watchdog mode** — pane sweep for orphaned processes and nudge escalation for stalled agents
+
+### Changed
+- **All agents upgraded to Opus 4.6 (1M context)** with effort max (except Monitor: Haiku)
+- **Timeout variables** hoisted to Step 1 (were undefined or late-defined in Step 6)
+- **Architect agent** — uses `$CLAUDE_TIMEOUT` (was incorrectly `$CROSS_TIMEOUT`), Write tool added for councils/handoffs
+- **ANALYST_TIMEOUT** — unified to `bmb_config_get` pattern (was raw python3 inline)
+- **`defaults.json`** — added `timeouts.analyst: 180`
+- **`configuration.md`** — documented `monitor` config section, aligned cross_model default to 1800s
+
+### Fixed
+- Architect agent missing Write tool (needed for `.bmb/councils/` and `.bmb/handoffs/` file creation)
+- Telegram curl `--data-urlencode` safety preserved (was accidentally downgraded to `-d`)
+- Step 4 prose comment referenced `cross_model` timeout instead of `claude_agent`
+- `defaults.json` / `configuration.md` / `bmb.md` timeout value misalignment (cross_model, analyst)
+- `bmb-system/learnings-global.md` runtime data removed from git tracking
+- Mobile landing CTA stats: m.ko.html agents count synced to 10 (was 9)
+- Test expectations updated: agents 9→10, steps 11.5→12
+- MD007 markdownlint indent errors in bmb.md
+
 ## [0.3.5] - 2026-03-13
 
 ### Added
@@ -171,6 +199,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), version
 - `bmb-learn.sh`: missing `mkdir -p` for global learnings directory
 - Worktree cleanup does not delete branches after `git worktree remove`
 
+[0.4.0]: https://github.com/project820/be-my-butler/releases/tag/v0.4.0
 [0.3.5]: https://github.com/project820/be-my-butler/releases/tag/v0.3.5
 [0.3.4]: https://github.com/project820/be-my-butler/releases/tag/v0.3.4
 [0.3.0]: https://github.com/project820/be-my-butler/releases/tag/v0.3.0

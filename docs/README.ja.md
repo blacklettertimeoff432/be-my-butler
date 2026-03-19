@@ -1,16 +1,16 @@
-> Last synced with README.md: 2026-03-12
+> Last synced with README.md: 2026-03-19
 
 [English](../README.md) | [한국어](README.ko.md) | **日本語** | [繁體中文](README.zh-TW.md)
 
 # BMB — Be My Butler
 
-**Claude Codeのための11.5ステップ・9エージェント・マルチエージェント・オーケストレーションパイプライン**
+**Claude Codeのための12ステップ・10エージェント・マルチエージェント・オーケストレーションパイプライン**
 
 一人のエージェントにすべてを任せる時代は終わりました。
-BMBは9つの専門エージェントが設計・実装・検証・分析・簡素化まで自律的に協調するパイプラインです。
+BMBは10の専門エージェントが設計・実装・検証・分析・簡素化まで自律的に協調するパイプラインです。
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](../CHANGELOG.md)
-[![What's New](https://img.shields.io/badge/what's_new-v0.2-green.svg)](../WHATS-NEW-0.2.md)
+[![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](../CHANGELOG.md)
+[![What's New](https://img.shields.io/badge/what's_new-v0.4.0-green.svg)](../WHATS-NEW-0.4.md)
 
 ---
 

@@ -257,9 +257,9 @@ for entry in "${LOCALES[@]}"; do
   esac
   assert_contains "$filepath" "href=\"$expected_footer\"" "$file footer links to $expected_footer"
 
-  # CTA stats present (9, 11.5, infinity)
-  assert_contains "$filepath" '>9<' "$file CTA has 9 agents stat"
-  assert_contains "$filepath" '>11.5<' "$file CTA has 11.5 steps stat"
+  # CTA stats present (10, 12, infinity)
+  assert_contains "$filepath" '>10<' "$file CTA has 10 agents stat"
+  assert_contains "$filepath" '>12<' "$file CTA has 12 steps stat"
   assert_contains "$filepath" 'infin' "$file CTA has infinity learning cycles"
 
   # GitHub link present
