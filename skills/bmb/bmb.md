@@ -79,6 +79,8 @@ Each agent self-logs:
 
 ## TELEGRAM PROTOCOL
 ```bash
+# NOTE: Telegram Bot API requires token in URL path — visible via `ps aux`.
+# Acceptable in single-user dev environments. For shared servers, use a proxy.
 if [ -n "${BMB_TG_CHAT:-}" ] && [ -n "${BMB_TG_TOKEN:-}" ]; then
   curl -s --data-urlencode "chat_id=$BMB_TG_CHAT" --data-urlencode "text=message" \
     "https://api.telegram.org/bot${BMB_TG_TOKEN}/sendMessage" > /dev/null
@@ -152,6 +154,11 @@ if [ "${IMPORTED_INCIDENTS:-0}" -gt 0 ]; then
 fi
 
 bmb_analytics_step_start "1" "setup"
+
+# Load timeout configs (used by Steps 4-10)
+CLAUDE_TIMEOUT=$(bmb_config_get "timeouts.claude_agent" || echo "1200")
+CROSS_TIMEOUT=$(bmb_config_get "timeouts.cross_model" || echo "3600")
+WRITER_TIMEOUT=$(bmb_config_get "timeouts.writer" || echo "600")
 
 # Load past learnings — inject MISTAKE entries as Known Pitfalls
 PITFALLS=""
@@ -377,9 +384,9 @@ bmb_analytics_step_start "4" "architecture"
       Write design to .bmb/handoffs/plan-to-exec.md. \
       Append summary to .bmb/session-log.md when done.'")
    bmb_analytics_event "4" "architect" "agent_spawn" "info" "" "architect spawned"
-   SendMessage to Consultant: {"event":"agent_spawn","step":"4","agent":"architect","timeout_sec":$CROSS_TIMEOUT,"ts":"$(date +%H:%M)"}
+   SendMessage to Consultant: {"event":"agent_spawn","step":"4","agent":"architect","timeout_sec":$CLAUDE_TIMEOUT,"ts":"$(date +%H:%M)"}
    ```
-   Poll with `cross_model` timeout. Kill pane when done.
+   Poll with `claude_agent` timeout. Kill pane when done.
    ```bash
    bmb_analytics_event "4" "architect" "agent_complete" "info" "" "architect done"
    bmb_analytics_step_end "4" "architecture"
@@ -549,7 +556,7 @@ fi
 
 Poll with SEPARATE timeouts:
 ```bash
-CROSS_TIMEOUT=$(config cross_model timeout); CLAUDE_TIMEOUT=$(config claude_agent timeout)
+# Timeouts already loaded in Step 1
 ELAPSED=0; CLAUDE_LOGGED=false
 while [ $ELAPSED -lt $CROSS_TIMEOUT ]; do
   CROSS_DONE=false; CLAUDE_DONE=false
@@ -801,12 +808,8 @@ bmb_analytics_step_start "10.5" "analyst"
 **Skip if analytics DB missing.** Never block cleanup.
 ```bash
 if [ -f ".bmb/analytics/analytics.db" ]; then
-  # Read analyst timeout from config (default 180s, max 300s)
-  ANALYST_TIMEOUT=180
-  if [ -f ".bmb/config.json" ]; then
-    CONFIGURED=$(python3 -c "import json; print(json.load(open('.bmb/config.json')).get('timeouts',{}).get('analyst',180))" 2>/dev/null)
-    [ -n "$CONFIGURED" ] && ANALYST_TIMEOUT="$CONFIGURED"
-  fi
+  # Read analyst timeout from config (default 180s, capped at 300s)
+  ANALYST_TIMEOUT=$(bmb_config_get "timeouts.analyst" || echo "180")
   [ "$ANALYST_TIMEOUT" -gt 300 ] && ANALYST_TIMEOUT=300
 
   rm -f .bmb/handoffs/analyst-report.md

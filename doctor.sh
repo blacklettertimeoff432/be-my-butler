@@ -56,6 +56,7 @@ check_tool() {
 
     if command -v "$_name" >/dev/null 2>&1; then
         if [ -n "$_ver_cmd" ]; then
+            # SAFETY: _ver_cmd is always a hardcoded string from callers below — never user input.
             _ver="$(eval "$_ver_cmd" 2>&1 | head -1)" || _ver="unknown"
         else
             _ver="installed"

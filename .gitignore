@@ -70,6 +70,10 @@ __pycache__/
 *.swo
 *~
 
+# IDE
+.vscode/
+.idea/
+
 # Environment / secrets
 .env
 .env.*

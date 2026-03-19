@@ -10,3 +10,7 @@
 [2026-03-13 18:00] PRAISE (step 5): executor completed 3-part infra in 460s → 단일 executor로 atomic 3-part 변경이 효과적 [bmb]
 [2026-03-13 18:00] MISTAKE (step 6): cross-model tester timeout 1200s → cross-model-run.sh 자체를 수정하는 세션에서는 cross-model 결과 기대 불가 [bmb]
 [2026-03-13 18:00] MISTAKE (step 7): cross-model verifier timeout 1200s → cross-model 100% 실패율 — timeout 600s로 줄이거나 circuit-breaker 필요 [bmb]
+[2026-03-19 11:13] MISTAKE (step 5): 동시 BMB 세션이 .bmb/ 디렉토리를 공유하면서 exec-result.md가 덮어쓰여짐 → 병렬 BMB 세션은 반드시 git worktree로 격리. 또는 .bmb/sessions/{session_id}/handoffs/ 경로로 분리 [asurada]
+[2026-03-19 11:29] CORRECTION (step 10): 병렬 세션에서 docs/ 직접 수정은 충돌 위험 — staging 디렉토리에 임시 문서 생성 후 수동 머지 → Writer는 .bmb/sessions/{session_id}/docs-staging/에 변경본 작성. 유저가 확인 후 docs/에 머지. 병렬 세션 안전성 확보 [asurada]
+[2026-03-19 11:49] PRAISE (step 11): Pipeline completed — 15 tasks implemented, 3 critical bugs caught and fixed by verifier → Verification loop-back worked as designed [asurada]
+[2026-03-19 11:49] MISTAKE (step 7): Cross-model verifier 100% 실패율 4회 연속 — 1800초 대기 낭비 → cross-model timeout을 600초로 줄이고 즉시 Claude-only 전환 필요 [asurada]

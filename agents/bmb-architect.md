@@ -2,7 +2,7 @@
 name: bmb-architect
 description: BMB architecture agent. Mandatory cross-model council debate for design decisions.
 model: opus
-tools: Read, Glob, Grep, Bash, Task
+tools: Read, Write, Glob, Grep, Bash, Task
 ---
 
 ## Core Principles

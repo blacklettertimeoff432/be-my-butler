@@ -45,6 +45,12 @@ Run `/BMB-setup` to generate a config file interactively.
     "telegram": {
       "enabled": false         // true | false (requires env vars)
     }
+  },
+
+  "monitor": {
+    "enabled": true,           // true | false — spawn Haiku Monitor agent
+    "interval": 30,            // Poll interval in seconds
+    "idle_stall_sec": 180      // Seconds of no output before flagging agent as stalled
   }
 }
 ```
@@ -114,6 +120,16 @@ To disable analytics (e.g., for CI or ephemeral environments):
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `enabled` | boolean | `false` | Send Telegram notifications at pipeline milestones |
+
+#### `monitor`
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `enabled` | boolean | `true` | Spawn the Haiku Monitor agent in Step 1 to watch for stalled agents |
+| `interval` | integer | `30` | How often (seconds) the Monitor polls agent panes for output |
+| `idle_stall_sec` | integer | `180` | Seconds of no output before the Monitor flags an agent as stalled and nudges |
+
+The Monitor agent runs as a lightweight Haiku process alongside the pipeline. It watches active agent panes and reports stalls to the Consultant. Disable it for small projects where the overhead is unnecessary.
 
 ---
 
