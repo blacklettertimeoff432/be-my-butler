@@ -49,6 +49,7 @@
 .bmb/
 bmb-system/runtime/
 bmb-system/.bmb/
+bmb-system/learnings-global.md
 
 # OMX runtime state (oh-my-codex artifacts, NEVER commit)
 bmb-system/.omx/
