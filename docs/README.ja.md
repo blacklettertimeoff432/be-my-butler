@@ -18,7 +18,7 @@ BMBは10の専門エージェントが設計・実装・検証・分析・簡素
 
 | 従来のワークフロー | BMB |
 |---|---|
-| 1エージェントで全処理 | 9つの専門エージェントが役割分担 |
+| 1エージェントで全処理 | 10の専門エージェントが役割分担 |
 | 自分が書いたコードを自分で検証 | クロスモデル・ブラインド検証 (Gemini) |
 | 設計なしで即実装 | Council討論 → 合意後に着手 |
 | mainブランチで直接作業 | Worktree分離で安全な実験 |
@@ -46,7 +46,7 @@ curl -fsSL https://raw.githubusercontent.com/project820/be-my-butler/main/instal
 
 ## 主な機能
 
-- **11.5ステップ・フルパイプライン** — Session Prep → Consulting → Council Debate → Architecture → Execution → Testing → Blind Verification → Simplification → **Analyst (Step 10.5)** → Documentation → Learning → Handoff
+- **12ステップ・フルパイプライン** — Session Prep → Consulting → Council Debate → Architecture → Execution → Testing → Blind Verification → Simplification → **Analyst (Step 10.5)** → Documentation → Learning → Handoff
 - **クロスモデル・ブラインド検証** — 実装エージェントが知らない状態でGeminiが独立検証、バイアスを排除
 - **Council Debate** — Lead + Consultant + 外部モデルが設計を議論し、最善のアプローチを導出
 - **Worktree分離** — `git worktree`でmainブランチに触れず安全に作業
@@ -85,7 +85,7 @@ BMBはtmuxをネイティブに活用します。Leadエージェントが上ペ
 
 ## インタラクティブ・アーキテクチャガイド
 
-11.5ステップの全体フローを視覚的に確認できます：
+12ステップの全体フローを視覚的に確認できます：
 
 **[docs/index.html](index.html)** — Mermaidダイアグラムによるインタラクティブガイド
 
@@ -103,7 +103,7 @@ BMBはtmuxをネイティブに活用します。Leadエージェントが上ペ
 
 | スキル | 用途 |
 |---|---|
-| `/BMB` | フル11.5ステップパイプライン |
+| `/BMB` | フル12ステップパイプライン |
 | `/BMB-setup` | プロジェクト初期設定 |
 | `/BMB-brainstorm` | Lead + Consultantコンサルティングセッション |
 | `/BMB-refactoring` | クロスモデルレビュー基盤リファクタリング |
