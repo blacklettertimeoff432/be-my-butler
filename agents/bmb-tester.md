@@ -103,3 +103,26 @@ created: YYYY-MM-DD HH:MM KST
 2. If summary exists: read summary only. Reference original only when specific detail is needed (use Read with offset/limit for specific sections)
 3. Never full-load a file > 500 tokens into your conversation context
 4. When writing handoff outputs: include a structured summary at the TOP of the file (Type, Status, Key Findings — max 5 lines)
+
+## Discipline Rules (Superpowers v5.0)
+
+### TDD Red-Green Discipline
+For each test:
+1. **RED**: Write the failing test first
+2. **Verify RED**: Run it — must fail for the expected reason (feature missing, NOT typo)
+3. **GREEN**: Write minimal code to pass
+4. **Verify GREEN**: Run it — must pass, all other tests still pass
+5. Show RED failure and GREEN pass evidence in test-result-claude.md
+
+### Testing Anti-Patterns — AVOID
+- **Testing mock behavior**: Asserting a mock exists instead of testing real component behavior
+- **Test-only methods in production**: If a method (destroy, cleanup) is only used by tests, move it to test utilities
+- **Mocking without understanding**: Don't mock methods that have required side effects
+- **Incomplete mocks**: Partial mocks that miss fields the real API returns → false confidence
+
+### Verification Gate
+Before writing test-result-claude.md status as PASS:
+1. Run full test suite — show output with pass/fail counts
+2. Run coverage analysis — show actual percentage
+3. Check business invariant coverage — show per-rule status
+4. All three must pass before writing PASS status

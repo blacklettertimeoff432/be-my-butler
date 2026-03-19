@@ -199,6 +199,22 @@ _gemini_preflight() {
   return 0
 }
 
+# --- OMX cleanup: kill orphaned processes before invocation (v0.4.0) ---
+if command -v omx &>/dev/null; then
+  omx cleanup 2>/dev/null || true
+fi
+
+# --- MCP disable: cross-model agents don't need MCP servers (v0.4.0) ---
+# Dynamically disable all configured MCP servers to eliminate startup overhead
+# (primary cause of 100% timeout rate in v0.3.x)
+MCP_DISABLE_ARGS=""
+_CODEX_CONFIG="${HOME}/.codex/config.toml"
+if [ -f "$_CODEX_CONFIG" ]; then
+  while IFS= read -r _srv; do
+    [ -n "$_srv" ] && MCP_DISABLE_ARGS="$MCP_DISABLE_ARGS -c mcp_servers.${_srv}.enabled=false"
+  done < <(grep '^\[mcp_servers\.' "$_CODEX_CONFIG" | sed 's/\[mcp_servers\.\(.*\)\]/\1/')
+fi
+
 # --- Invoke provider ---
 case "$PROVIDER" in
   codex)
@@ -221,7 +237,7 @@ case "$PROVIDER" in
         output_tmp="${OUTPUT_FILE}.tmp.$$"
         stderr_tmp="${OUTPUT_FILE}.stderr.$$"
         # Stream stdout/stderr separately (v0.3.5)
-        timeout "$TIMEOUT" codex exec $MODEL_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT" > "$output_tmp" 2>"$stderr_tmp"
+        timeout "$TIMEOUT" codex exec $MODEL_ARGS $MCP_DISABLE_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT" > "$output_tmp" 2>"$stderr_tmp"
         local rc=$?
 
         # Check stderr for error patterns
@@ -246,7 +262,8 @@ case "$PROVIDER" in
         fi
         return $rc
       else
-        exec timeout "$TIMEOUT" codex exec $MODEL_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT"
+        timeout "$TIMEOUT" codex exec $MODEL_ARGS $MCP_DISABLE_ARGS --full-auto -C "$WORKDIR" "$FULL_PROMPT"
+        return $?
       fi
     }
 
@@ -346,7 +363,7 @@ except:
         exit 1
       fi
     else
-      exec timeout "$TIMEOUT" gemini run $MODEL_ARGS "$FULL_PROMPT"
+      timeout "$TIMEOUT" gemini run $MODEL_ARGS "$FULL_PROMPT"
     fi
     ;;
 

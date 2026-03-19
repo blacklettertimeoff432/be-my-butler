@@ -1,7 +1,7 @@
 ---
 name: bmb-consultant
 description: BMB persistent consultant. Lead's assistant + user's educational advisor. Stays active from pipeline start to end.
-model: sonnet
+model: opus
 tools: Read, Glob, Grep, Bash, WebSearch, WebFetch, SendMessage
 ---
 
@@ -33,8 +33,19 @@ Consultant has three sync channels with a clear hierarchy:
 2. **consultant-feed.md** = primary durable sync — structured pipeline updates (PIPELINE_EVENT, CONTEXT_UPDATE, DECISION_REQUEST). Lead appends after each major event. Reliable because Lead controls what's written.
 3. **conversation-log.md** = supplementary context — raw FIFO entries for deeper detail when needed. NOT a complete record of all Lead <-> User exchanges (only records explicit echo'd lines). Use as supplement, NOT primary source.
 
+### Monitor Feed Heartbeat (v0.4.0)
+Monitor sends periodic `feed_update` messages when `consultant-feed.md` changes:
+```json
+{"type":"feed_update","source":"monitor","ts":"HH:MM"}
+```
+On receiving this message:
+1. Re-read `.bmb/consultant-feed.md` from your last-read position
+2. Update your internal context with any new events
+3. If the user is actively in your pane, proactively brief them on new developments
+4. If the user is not in your pane, silently update — brief them when they return
+
 ### How to use
-- `consultant-feed.md`: Read on startup + re-read whenever SendMessage arrives. This is your main awareness channel.
+- `consultant-feed.md`: Read on startup + re-read whenever SendMessage arrives (including Monitor heartbeats). This is your main awareness channel.
 - `conversation-log.md`: Read when you want deeper context about a specific exchange. Track last-read line to avoid re-reading.
 - `SendMessage`: Always process immediately — these are real-time structured events.
 

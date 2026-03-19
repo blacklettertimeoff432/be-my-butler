@@ -21,6 +21,7 @@ You may ONLY run these commands:
 - `wc -c {path}` — check file byte count
 - `ls -l {path}` — list file metadata
 - `ps -p {pid}` — check if process is alive
+- `tmux list-panes -F '...'` — list tmux pane metadata (v0.4.0 watchdog)
 
 You may NOT run any other commands. No `cat`, `grep`, `head`, `tail`, `find`, or any command
 that reads file content.
@@ -142,6 +143,74 @@ When `blind_phase=true` for a watch item:
   - Failure details or root cause
   - Coverage numbers
   - Any content parsed from result files
+
+## Consultant Feed Heartbeat (v0.4.0)
+
+In addition to per-watch-item monitoring, track the consultant feed file:
+
+### Feed Monitoring
+Every monitoring cycle (default 30s), check `.bmb/consultant-feed.md`:
+1. `stat .bmb/consultant-feed.md` — get current mtime
+2. Compare with `last_feed_mtime`
+3. If changed:
+   - SendMessage to Consultant: `{"type":"feed_update","source":"monitor","ts":"HH:MM"}`
+   - Update `last_feed_mtime`
+4. If unchanged: skip (no message)
+
+### State Tracking Addition
+Add to per-session state:
+- `last_feed_mtime` — last observed mtime of consultant-feed.md
+
+### Rules
+- Feed heartbeat runs regardless of blind phase status (feed itself is filtered by Lead)
+- Never read feed file content — metadata only (mtime check)
+- This does NOT replace Lead's direct SendMessage — it supplements it for idle periods
+
+## Watchdog Mode (v0.4.0)
+
+Monitor acts as a watchdog for the entire tmux session, detecting orphaned and crashed panes.
+
+### tmux Pane Sweep (every 60s)
+Every monitoring cycle, scan panes in the current window only:
+```bash
+tmux list-panes -F '#{pane_id} #{pane_pid} #{pane_dead}'
+```
+Note: Use `list-panes` WITHOUT `-s` to avoid scanning other windows/sessions the user may have open.
+
+For each pane NOT matching known pane IDs (Lead pane, Consultant pane from `.bmb/consultant-pane-id`):
+1. If `pane_dead=1` → SendMessage to Lead:
+   `{"type":"watchdog","event":"pane_dead","pane":"ID","ts":"HH:MM"}`
+2. If pane alive but no registered watch item for its PID → SendMessage to Lead:
+   `{"type":"watchdog","event":"untracked_pane","pane":"ID","pid":N,"ts":"HH:MM"}`
+
+### Known Pane Resolution
+On startup, read:
+- Own parent pane ID (Lead's pane)
+- `.bmb/consultant-pane-id` (Consultant's pane)
+These are excluded from watchdog sweep — they are expected long-lived panes.
+
+### Lead Nudge Escalation
+If a `stalled` or `process_died` report receives no acknowledgment from Lead within 120s:
+1. Re-send with escalation flag:
+   `{"type":"watchdog","event":"nudge_repeat","original_event":"stalled","agent":"NAME","nudge_count":N,"ts":"HH:MM"}`
+2. Maximum 3 nudges per event — after 3rd, stop to avoid noise
+3. Track per-event: `nudge_count`, `last_nudge_ts`, `acked` (boolean)
+
+### Nudge Acknowledgment
+Lead acknowledges by sending:
+`{"ack":"stalled","agent":"NAME"}`
+On receipt, set `acked=true` for that event and stop nudging.
+
+### State Tracking Addition
+Add to per-session state:
+- `known_panes` — set of Lead + Consultant pane IDs (excluded from sweep)
+- `nudge_tracker` — per-event: {event_type, agent, nudge_count, last_nudge_ts, acked}
+
+### Rules
+- Watchdog uses `tmux list-panes` only — metadata, no content
+- Never kill panes — only report to Lead
+- Nudge escalation is capped at 3 per event to prevent alert fatigue
+- Watchdog runs independently of registered watch items
 
 ## Optional Dependency
 

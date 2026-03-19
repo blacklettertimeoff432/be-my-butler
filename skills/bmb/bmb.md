@@ -104,6 +104,15 @@ mkdir -p .bmb/sessions/${SESSION_ID}/handoffs/.compressed
 mkdir -p .bmb/sessions/${SESSION_ID}/councils
 ln -sfn ${SESSION_ID} .bmb/sessions/latest
 
+# --- SESSION_MODE detection (v0.4.0) ---
+# Lead determines SESSION_MODE from the user's initial prompt text.
+# $USER_PROMPT is a placeholder — Lead reads the actual user message directly.
+SESSION_MODE="standalone"
+# If user prompt contains "BMB sub:" → sub mode (parallel track worker)
+# If user prompt contains "BMB consolidate:" → consolidation mode (merge only)
+# Otherwise → standalone (default, 100% backward compatible)
+echo "SESSION_MODE=$SESSION_MODE" >> .bmb/sessions/${SESSION_ID}/env
+
 # Source config infrastructure
 source "$HOME/.claude/bmb-system/scripts/bmb-config.sh"
 if ! bmb_config_first_time_gate; then exit 0; fi
@@ -211,6 +220,37 @@ bmb_analytics_step_end "1" "setup"
 ```bash
 bmb_analytics_step_start "2" "brainstorm"
 ```
+
+0. **Visual Brainstorming Companion (v0.4.0)**:
+   If upcoming questions involve visual content (mockups, diagrams, architecture comparisons),
+   offer to start the Superpowers brainstorm server:
+   ```bash
+   SUPERPOWERS_SCRIPTS=$(ls -d "$HOME/.claude/plugins/cache/superpowers-dev/superpowers"/*/skills/brainstorming/scripts 2>/dev/null | head -1)
+   if [ -n "$SUPERPOWERS_SCRIPTS" ] && [ -f "$SUPERPOWERS_SCRIPTS/start-server.sh" ]; then
+     BRAINSTORM_SCREEN_DIR=".bmb/brainstorm-screens/${SESSION_ID}"
+     mkdir -p "$BRAINSTORM_SCREEN_DIR"
+     SERVER_INFO=$("$SUPERPOWERS_SCRIPTS/start-server.sh" --project-dir "$(pwd)" 2>/dev/null) || SERVER_INFO=""
+     if [ -n "$SERVER_INFO" ]; then
+       VISUAL_BRAINSTORM_ACTIVE=true
+       # Present URL to user via AskUserQuestion
+     fi
+   fi
+   ```
+   Per-question decision: mockups/diagrams → browser, concepts/requirements → terminal.
+   After Step 3 approval: `"$SUPERPOWERS_SCRIPTS/stop-server.sh" 2>/dev/null || true`
+
+0.5. **Parallel Track Assessment (v0.4.0)**:
+   After brainstorming completes (standalone mode only), assess:
+   "Can this work be split into independent tracks?"
+   - If YES: generate `.bmb/parallel-manifest.json` + per-track prompts + consolidation prompt
+   - If NO: continue as standalone
+   ```bash
+   if [ "$SESSION_MODE" = "standalone" ]; then
+     # Lead assesses parallelism during brainstorm
+     # If splitting: write manifest, present track prompts to user
+     # SendMessage to Consultant: {"event":"parallel_tracks_generated","step":"2","track_count":N,"manifest":".bmb/parallel-manifest.json","ts":"$(date +%H:%M)"}
+   fi
+   ```
 
 1. Initialize consultant feed (hybrid — Finding 3 fix):
    ```bash
@@ -949,6 +989,36 @@ bmb_analytics_step_start "12" "cleanup"
     mv .bmb/sessions/${SESSION_ID}/carry-forward.md.tmp .bmb/sessions/${SESSION_ID}/carry-forward.md
     ```
 
+10.5. **Session Handover System (v0.4.0)**:
+    Generate next-session preparation with user confirmation.
+    ```bash
+    # Generate next-session-plan.md from session-log + carry-forward
+    cat > .bmb/next-session-plan.md << PLAN_EOF
+    # Next Session Plan
+    Generated: $(date '+%Y-%m-%d %H:%M KST')
+    Previous Session: ${SESSION_ID}
+
+    ## Completed This Session
+    $(grep '| COMPLETE\|| PASS' .bmb/session-log.md 2>/dev/null | sed 's/^/- [x] /' || echo "- [x] Session completed")
+
+    ## Next Steps
+    $(grep 'Remaining\|TODO\|Unfinished' .bmb/sessions/${SESSION_ID}/carry-forward.md 2>/dev/null | sed 's/^//' || echo "- No pending items")
+
+    ## One-Line Prompt
+    > BMB: {Lead fills this with specific next task description}
+    PLAN_EOF
+    ```
+
+    Present to user with AskUserQuestion:
+    - **확인, 이대로 저장**: Finalize plan, display the one-line prompt prominently
+    - **필요 없음**: Delete `.bmb/next-session-plan.md`, end session normally
+    - **Custom input**: User modifies, Lead regenerates
+
+    ```bash
+    # Send event to Consultant
+    SendMessage to Consultant: {"event":"session_handover","step":"12","plan_path":".bmb/next-session-plan.md","ts":"$(date +%H:%M)"}
+    ```
+
 11. **Worktree cleanup**:
     ```bash
     git worktree list | grep '.bmb/worktrees' | awk '{print $1}' | xargs -I{} git worktree remove {} 2>/dev/null || true
@@ -982,6 +1052,7 @@ After each step completes, Lead checks own context usage:
 | research | consultant + brainstorm(in-process) → retrospective → cleanup |
 | review | consultant + brainstorm(in-process) → verifier(review mode) → retrospective → cleanup |
 | infra | consultant + brainstorm(in-process) → executor → verifier(cross) → writer → analyst → retrospective → cleanup |
+| consolidation | merge worktrees → integration tester(cross) → verifier(cross) → writer(merge staging) → cleanup |
 
 ## 3-TIER REPORTING HIERARCHY
 
@@ -1020,9 +1091,21 @@ Lead fills these fixed JSON one-liner templates when sending lifecycle events vi
 {"event":"external_incidents_imported","step":"1","count":N,"ts":"HH:MM"}
 {"event":"recovery_attempt","step":"N","agent":"NAME","type":"restart|auth_retry","outcome":"success|failed","ts":"HH:MM"}
 {"event":"cross_model_degraded","step":"N","agent":"NAME","exit_code":N,"ts":"HH:MM","severity":"warn","tier":"1"}
+{"event":"session_handover","step":"12","plan_path":".bmb/next-session-plan.md","ts":"HH:MM"}
+{"event":"parallel_tracks_generated","step":"2","track_count":N,"manifest":".bmb/parallel-manifest.json","ts":"HH:MM"}
+{"type":"watchdog","event":"pane_dead","pane":"ID","ts":"HH:MM"}
+{"type":"watchdog","event":"untracked_pane","pane":"ID","pid":N,"ts":"HH:MM"}
+{"type":"watchdog","event":"nudge_repeat","original_event":"EVENT","agent":"NAME","nudge_count":N,"ts":"HH:MM"}
 ```
 
 **Field rules**: No prose outside JSON. Stable field names. Omit irrelevant fields, no placeholders.
+
+### Watchdog Event Handling (v0.4.0)
+On receiving watchdog events from Monitor:
+- `pane_dead`: Kill the dead pane (`tmux kill-pane -t {pane} 2>/dev/null`), log to session-log
+- `untracked_pane`: Investigate — is this a legitimate agent? If not, kill it
+- `nudge_repeat`: Re-check the stalled/died agent. If still stuck, take recovery action or log degradation
+- Always acknowledge with: `{"ack":"EVENT","agent":"NAME"}` to stop further nudges
 
 ## CONTEXT PROTECTION PROTOCOL
 - After reading a handoff, summarize it in 2-3 lines

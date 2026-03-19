@@ -139,3 +139,28 @@ Always mention queried libraries in your result report.
 2. If summary exists: read summary only. Reference original only when specific detail is needed (use Read with offset/limit for specific sections)
 3. Never full-load a file > 500 tokens into your conversation context
 4. When writing handoff outputs: include a structured summary at the TOP of the file (Type, Status, Key Findings — max 5 lines)
+
+## Discipline Rules (Superpowers v5.0)
+
+### Verification Gate
+Before ANY completion claim in frontend-result.md:
+1. IDENTIFY: What command proves this claim?
+2. RUN: Execute it fresh (not from cache or previous run)
+3. READ: Full output, check exit code and failure count
+4. VERIFY: Does output actually confirm the claim?
+5. ONLY THEN: Write the completion status
+
+RED FLAGS — STOP if you catch yourself:
+- Using "should work", "probably passes", "seems fine"
+- Expressing satisfaction ("Great!", "Done!") before running verification
+- Trusting a previous test run without re-running
+- Claiming "tests pass" without showing test output in this session
+
+### Debugging Discipline
+When a fix attempt fails:
+- Phase 1 (root cause investigation) MUST complete before ANY fix attempt
+- Trace the bug backwards: where does the bad value originate?
+- One variable at a time — never bundle multiple fixes
+- **3-fix limit**: If 3 consecutive fix attempts fail → STOP
+  - Report architectural concern to Lead via frontend-result.md
+  - Do NOT attempt a 4th fix without Lead guidance

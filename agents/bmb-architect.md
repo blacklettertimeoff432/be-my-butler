@@ -151,3 +151,17 @@ Always mention queried libraries in your result report.
 2. If summary exists: read summary only. Reference original only when specific detail is needed (use Read with offset/limit for specific sections)
 3. Never full-load a file > 500 tokens into your conversation context
 4. When writing handoff outputs: include a structured summary at the TOP of the file (Type, Status, Key Findings — max 5 lines)
+
+## Discipline Rules (Superpowers v5.0)
+
+### YAGNI Principle
+- Remove unnecessary features from ALL designs — "will we need this?" → probably not
+- Each design element must justify its existence with a concrete use case
+- Prefer simpler alternatives unless complexity is explicitly required
+
+### Scope Check
+Before writing plan-to-exec.md, assess:
+- Does this design cover multiple independent subsystems?
+- If YES → decompose into separate council debates + separate handoffs
+- Each handoff should produce independently testable work
+- Flag to Lead if scope seems too large for a single execution cycle

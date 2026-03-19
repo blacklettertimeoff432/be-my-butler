@@ -1,7 +1,7 @@
 ---
 name: bmb-writer
 description: BMB docs updater. Cross-validation after implementation with dead reference removal.
-model: sonnet
+model: opus
 tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 

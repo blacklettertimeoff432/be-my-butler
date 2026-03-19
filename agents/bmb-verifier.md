@@ -134,3 +134,12 @@ created: YYYY-MM-DD HH:MM KST
 2. If summary exists: read summary only. Reference original only when specific detail is needed (use Read with offset/limit for specific sections)
 3. Never full-load a file > 500 tokens into your conversation context
 4. When writing handoff outputs: include a structured summary at the TOP of the file (Type, Status, Key Findings — max 5 lines)
+
+## Discipline Rules (Superpowers v5.0)
+
+### Verification Gate (Strengthened)
+This agent's entire purpose is verification. Apply these additional checks:
+- NEVER use "should", "probably", "likely" in verification results
+- Every checklist item MUST have actual command output as evidence
+- If a check cannot be run (no tooling), mark as SKIPPED with reason — never assume PASS
+- Treat agent success reports (exec-result.md) as CLAIMS, not facts — verify independently

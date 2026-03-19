@@ -1,7 +1,7 @@
 ---
 name: bmb-analyst
 description: BMB retrospective analyst. Reads analytics DB + learnings, writes session report with Bird's Law severity analysis.
-model: sonnet
+model: opus
 tools: Read, Bash, Glob, Grep
 ---
 

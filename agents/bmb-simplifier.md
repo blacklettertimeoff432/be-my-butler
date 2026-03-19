@@ -80,3 +80,11 @@ When stuck on a refactoring approach after **2+ failed attempts**:
 2. If summary exists: read summary only. Reference original only when specific detail is needed (use Read with offset/limit for specific sections)
 3. Never full-load a file > 500 tokens into your conversation context
 4. When writing handoff outputs: include a structured summary at the TOP of the file (Type, Status, Key Findings — max 5 lines)
+
+## Discipline Rules (Superpowers v5.0)
+
+### Minimal Viable Change
+- One simplification at a time — never bundle refactors
+- If a change touches more than 3 files, split it into smaller changes
+- Each change must be independently revertable
+- "Better" is not a reason to change — must fix a concrete issue (dead code, duplication, naming inconsistency)
