@@ -50,6 +50,9 @@
 bmb-system/runtime/
 bmb-system/.bmb/
 
+# OMX runtime state (oh-my-codex artifacts, NEVER commit)
+bmb-system/.omx/
+
 # Temp/partial files from codex shim
 *.partial
 *.tmp.*

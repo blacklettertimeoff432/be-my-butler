@@ -14,6 +14,7 @@ Recipes control which pipeline steps are executed. Choose based on the task's sc
 | `research` | 1-2-3 | No | No | No | No | No | No |
 | `review` | 1-2-3-7-8 | No | No | Yes (review mode) | No | No | No |
 | `infra` | 1-2-3-5-6-7-8-10-10.5-11 | No | Yes (cross) | Yes (cross) | No | Yes | No |
+| `consolidation` | 5-5.5-6-7-8-10-12 | No | Yes (cross) | Yes (cross) | No | No | No |
 
 ---
 
@@ -176,3 +177,23 @@ flowchart TD
 ```
 
 If unsure, start with `feature` -- it includes everything (all 12 steps). You can always cancel after the approval step if the scope was wrong.
+
+---
+
+## consolidation
+
+**When to use:** Merging parallel track sessions. No code is written — only merge + integration test + docs.
+
+**Pipeline:**
+```
+Merge Worktrees → Integration Test (Cross) → Cross-Model Verify → Reconcile → Docs (merge staging) → Cleanup
+```
+
+**What makes it unique:** The lightest recipe. Skips brainstorm, approval, architecture, execution, simplification, and analyst. Only merges worktree changes from completed `sub` sessions, runs integration tests, and consolidates staging docs into `docs/`. Triggered by `BMB consolidate:` prompt.
+
+**Estimated token cost:** 30k-80k tokens
+
+**Example prompt:**
+```
+BMB consolidate: auth + dashboard 트랙 취합
+```
