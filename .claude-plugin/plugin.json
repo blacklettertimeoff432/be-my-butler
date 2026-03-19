@@ -1,0 +1,24 @@
+{
+  "name": "be-my-butler",
+  "version": "0.4.0",
+  "description": "Multi-agent orchestration for Claude Code with cross-model blind verification — 10 specialized agents, 12-step pipeline, council debate architecture",
+  "author": {
+    "name": "project820",
+    "url": "https://github.com/project820"
+  },
+  "homepage": "https://github.com/project820/be-my-butler",
+  "repository": "https://github.com/project820/be-my-butler",
+  "license": "MIT",
+  "keywords": [
+    "multi-agent",
+    "orchestration",
+    "verification",
+    "cross-model",
+    "pipeline",
+    "code-review",
+    "testing",
+    "architecture"
+  ],
+  "agents": "./agents/",
+  "skills": "./skills/"
+}

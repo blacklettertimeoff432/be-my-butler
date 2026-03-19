@@ -1,6 +1,10 @@
 # Whitelist: only track be-my-butler project files
 *
 
+# Plugin manifest
+!.claude-plugin/
+!.claude-plugin/**
+
 # Project infrastructure
 !.gitignore
 !.markdownlint.json
